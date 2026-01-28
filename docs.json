@@ -127,13 +127,13 @@
     "links": [
       {
         "label": "Dashboard",
-        "href": "https://higgsfield.ai/dashboard"
+        "href": "https://higgsfield-api.vercel.app"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get API Key",
-      "href": "https://higgsfield.ai/dashboard/api-keys"
+      "href": "https://higgsfield-api.vercel.app/api-keys"
     }
   },
   "footer": {
@@ -144,7 +144,7 @@
     }
   },
   "api": {
-    "baseUrl": "https://higgsfield.ai",
+    "baseUrl": "https://higgsfield-api.vercel.app",
     "auth": {
       "method": "bearer"
     }
