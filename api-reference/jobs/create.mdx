@@ -1,0 +1,142 @@
+---
+title: 'Create Job'
+api: 'POST /api/jobs'
+description: 'Submit a new generation job'
+---
+
+## Request Body
+
+<ParamField body="type" type="string" required>
+  Job type. One of:
+  - **Video**: `kling_26`, `motion_control`, `motion_control_v2`, `kling_video_edit`, `kling_video_reference`
+  - **Image**: `nano_banana_2`, `seedream`, `text2image_soul`, `skin_enhancer`, `topaz_image`
+</ParamField>
+
+<ParamField body="params" type="object" required>
+  Job parameters (varies by type). See [Models](/models/overview) for details.
+</ParamField>
+
+<ParamField body="externalId" type="string">
+  Your custom identifier for tracking this job
+</ParamField>
+
+<ParamField body="retryOnFailure" type="boolean" default="false">
+  Automatically retry on failure
+</ParamField>
+
+<ParamField body="maxRetries" type="number" default="3">
+  Maximum retry attempts (if `retryOnFailure` is true)
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string" required>
+  The created job ID
+</ResponseField>
+
+<ResponseField name="price" type="object">
+  Calculated price information (if pricing available for model)
+
+  <Expandable title="price properties">
+    <ResponseField name="falPrice" type="number">
+      Base FAL.ai price
+    </ResponseField>
+    <ResponseField name="yourPrice" type="number">
+      Your price after tier discount
+    </ResponseField>
+    <ResponseField name="tier" type="string">
+      `unlimited` (90% off) or `metered` (50% off)
+    </ResponseField>
+    <ResponseField name="discount" type="string">
+      `90%` or `50%`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+### Text-to-Video (Kling 2.6)
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_26",
+    "params": {
+      "prompt": "A woman walking on a beach at sunset",
+      "width": 1920,
+      "height": 1080,
+      "duration": 5,
+      "sound": true
+    }
+  }'
+```
+
+### Motion Control
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "motion_control",
+    "params": {
+      "prompt": "walking through a city",
+      "mode": "std",
+      "width": 720,
+      "height": 1280,
+      "medias": [
+        {
+          "role": "motion_video",
+          "data": {
+            "id": "video-uuid",
+            "type": "video",
+            "url": "https://example.com/motion.mp4"
+          }
+        },
+        {
+          "role": "character",
+          "data": {
+            "id": "image-uuid",
+            "type": "image",
+            "url": "https://example.com/character.png"
+          }
+        }
+      ]
+    }
+  }'
+```
+
+### Image Generation
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "nano_banana_2",
+    "externalId": "my-order-123",
+    "retryOnFailure": true,
+    "params": {
+      "prompt": "a stunning landscape photograph",
+      "resolution": "2k",
+      "batch_size": 1
+    }
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "price": {
+    "falPrice": 0.12,
+    "yourPrice": 0.012,
+    "tier": "unlimited",
+    "discount": "90%",
+    "model": "nano_banana_2"
+  }
+}
+```

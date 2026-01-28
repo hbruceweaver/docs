@@ -1,0 +1,106 @@
+---
+title: Introduction
+description: 'Scalable AI video and image generation infrastructure'
+---
+
+# Higgsfield API
+
+Build AI-powered video and image generation into your applications with a simple, unified API.
+
+## What is Higgsfield API?
+
+Higgsfield API provides managed infrastructure for AI video and image generation. Instead of managing API keys, rate limits, and job queues yourself, we handle:
+
+- **Job Queue Management** - Automatic queuing, retries, and status tracking
+- **Account Pooling** - Distribute load across multiple generation accounts
+- **Webhook Callbacks** - Get notified when jobs complete or fail
+- **Usage Tracking** - Monitor credits and usage per organization
+
+## Supported Models
+
+### Video Generation
+
+| Model | Type | Description | Credits |
+|-------|------|-------------|---------|
+| [Kling 2.6](/models/kling-26) | Text/Image-to-Video | High-quality video with optional audio | 10 |
+| [Motion Control](/models/kling-motion-control) | Character Transfer | Transfer subjects onto motion videos | 10 |
+| [Kling O1 Edit](/models/kling-o1-edit) | Video Editing | Edit videos with image references | 10 |
+
+### Image Generation
+
+| Model | Type | Description | Credits |
+|-------|------|-------------|---------|
+| [Nano Banana 2](/models/nano-banana-2) | Text-to-Image | Fast image generation | 3 |
+| [Soul](/models/soul) | Text-to-Image | Style-controlled generation | 2 |
+| [Seedream](/models/seedream) | Text-to-Image | High-resolution (2-4K) | 2 |
+| [Skin Enhancer](/models/skin-enhancer) | Post-Processing | Skin enhancement | 1 |
+| [Topaz Upscale](/models/topaz-upscale) | Post-Processing | Image upscaling (up to 4x) | 1 |
+
+## Quick Example
+
+Generate an image with Nano Banana 2:
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "nano_banana_2",
+    "params": {
+      "prompt": "a serene mountain landscape at sunset",
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1,
+      "aspect_ratio": "1:1",
+      "resolution": "1k"
+    }
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "id": "j57abc123def456"
+}
+```
+
+Poll for completion:
+
+```bash
+curl https://higgsfield.ai/api/jobs?id=j57abc123def456 \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+**Response (completed):**
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "nano_banana_2",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/..."
+    }
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your API key and make your first request
+  </Card>
+  <Card title="Guides" icon="book" href="/guides/text-to-image">
+    Step-by-step tutorials for common tasks
+  </Card>
+  <Card title="Models" icon="cube" href="/models/overview">
+    Compare models and their capabilities
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Full endpoint documentation
+  </Card>
+</CardGroup>

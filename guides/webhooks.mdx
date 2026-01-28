@@ -1,0 +1,145 @@
+---
+title: Webhooks
+description: 'Receive notifications when jobs complete'
+---
+
+## Overview
+
+Webhooks notify your application when jobs complete or fail, eliminating polling.
+
+<Note>
+Webhook support is coming soon. This guide documents the planned implementation.
+</Note>
+
+## Current Alternative: Polling
+
+Until webhooks are available, poll job status:
+
+```bash
+curl "https://higgsfield.ai/api/jobs?id=JOB_ID" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Polling Best Practices
+
+1. **Start with longer intervals** - Jobs take 1-5 minutes
+2. **Use exponential backoff** - Increase interval for queued jobs
+3. **Set a timeout** - Don't poll forever
+4. **Handle failures** - Check `status` and `failReason`
+
+### JavaScript Polling Helper
+
+```javascript
+async function waitForJob(jobId, apiKey, maxWaitMs = 300000) {
+  const startTime = Date.now();
+  let interval = 5000;
+
+  while (Date.now() - startTime < maxWaitMs) {
+    const response = await fetch(
+      `https://higgsfield.ai/api/jobs?id=${jobId}`,
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+    const job = await response.json();
+
+    if (job.status === 'completed') {
+      return job.results;
+    }
+
+    if (job.status === 'failed') {
+      throw new Error(`Job failed: ${job.failReason}`);
+    }
+
+    await new Promise(r => setTimeout(r, interval));
+    interval = Math.min(interval * 1.5, 30000);
+  }
+
+  throw new Error('Job timed out');
+}
+```
+
+### Python Polling Helper
+
+```python
+import time
+import requests
+
+def wait_for_job(job_id, api_key, max_wait=300):
+    start = time.time()
+    interval = 5
+
+    while time.time() - start < max_wait:
+        resp = requests.get(
+            f"https://higgsfield.ai/api/jobs?id={job_id}",
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        job = resp.json()
+
+        if job["status"] == "completed":
+            return job["results"]
+
+        if job["status"] == "failed":
+            raise Exception(f"Job failed: {job.get('failReason')}")
+
+        time.sleep(interval)
+        interval = min(interval * 1.5, 30)
+
+    raise Exception("Job timed out")
+```
+
+## Planned Webhook Events
+
+| Event | Description |
+|-------|-------------|
+| `job.completed` | Job finished successfully |
+| `job.failed` | Job failed after all retries |
+| `job.progress` | Progress update (long jobs) |
+
+## Planned Payload Format
+
+```json
+{
+  "event": "job.completed",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "id": "j57abc123def456",
+    "type": "nano_banana_2",
+    "status": "completed",
+    "results": {
+      "raw": {
+        "type": "image",
+        "url": "https://cdn.higgsfield.ai/image.png"
+      }
+    }
+  }
+}
+```
+
+## Planned Security
+
+Webhooks will include:
+
+- **Signature header** - HMAC-SHA256 for verification
+- **Timestamp** - Prevent replay attacks
+- **Retry logic** - Automatic retries on failure
+
+### Signature Verification (Planned)
+
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}
+```
+
+## Stay Updated
+
+Check the [changelog](/changelog) for webhook availability announcements.

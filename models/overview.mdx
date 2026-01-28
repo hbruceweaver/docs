@@ -1,0 +1,87 @@
+---
+title: Model Overview
+description: 'Compare all available models and their capabilities'
+---
+
+## Video Generation Models
+
+| Model | Input | Output | Duration | Credits | Best For |
+|-------|-------|--------|----------|---------|----------|
+| [Kling 2.6](/models/kling-26) | Text or Image | Video + Audio | 5-10s | 10 | High-quality video from prompts |
+| [Motion Control](/models/kling-motion-control) | Video + Image | Video | 5-10s | 10 | Character transfer to motion |
+| [Kling O1 Edit](/models/kling-o1-edit) | Video + Images | Video | 3-10s | 10 | Video editing with references |
+
+## Image Generation Models
+
+| Model | Input | Output | Resolution | Credits | Best For |
+|-------|-------|--------|------------|---------|----------|
+| [Nano Banana 2](/models/nano-banana-2) | Text | Image | 1K-2K | 3 | Fast general-purpose |
+| [Soul](/models/soul) | Text + Style | Image | 720p-1080p | 2 | Style-controlled images |
+| [Seedream](/models/seedream) | Text | Image | 2K-4K | 2 | High-resolution output |
+| [Skin Enhancer](/models/skin-enhancer) | Image | Image | Same | 1 | Portrait enhancement |
+| [Topaz Upscale](/models/topaz-upscale) | Image | Image | Up to 4x | 1 | Resolution upscaling |
+
+## Choosing a Model
+
+### For Video Generation
+
+- **Kling 2.6** - Best for creating videos from text prompts or animating still images. Supports audio generation.
+- **Motion Control** - Use when you have a motion reference video and want to transfer a character/subject onto it.
+- **Kling O1 Edit** - Use for editing existing videos with image references (add elements, change scenes).
+
+### For Image Generation
+
+- **Nano Banana 2** - Fastest option, good for iteration and testing.
+- **Soul** - Best when you need consistent style across images using style presets.
+- **Seedream** - Highest resolution output (up to 4K).
+
+### For Post-Processing
+
+- **Skin Enhancer** - Apply after generating portraits to enhance skin detail.
+- **Topaz Upscale** - Use to increase resolution of any generated image.
+
+## Aspect Ratios
+
+All image models support these aspect ratios:
+
+| Ratio | Use Case |
+|-------|----------|
+| `1:1` | Square (social media, avatars) |
+| `16:9` | Landscape (YouTube, presentations) |
+| `9:16` | Portrait (TikTok, Instagram Stories) |
+| `4:3` | Standard landscape |
+| `3:4` | Standard portrait |
+| `3:2` | Photography standard |
+| `2:3` | Portrait photography |
+| `21:9` | Ultra-wide |
+| `5:4` | Medium format |
+| `4:5` | Instagram portrait |
+
+Video models (Kling 2.6, O1 Edit) support: `16:9`, `1:1`, `9:16`
+
+## Quality Modes
+
+### Video Quality
+
+Motion Control supports two quality modes:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `std` | Standard quality, faster | Testing, iteration |
+| `pro` | Higher quality, slower | Final production |
+
+### Image Quality
+
+Soul model quality options:
+
+| Quality | Resolution | Use Case |
+|---------|------------|----------|
+| `720p` | ~1024px | Web, thumbnails |
+| `1080p` | ~2048px | Print, high-res displays |
+
+Seedream quality options:
+
+| Quality | Resolution | Use Case |
+|---------|------------|----------|
+| `basic` | 2K | Web, general use |
+| `high` | 4K | Print, large displays |

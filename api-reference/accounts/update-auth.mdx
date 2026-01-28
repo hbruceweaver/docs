@@ -1,0 +1,51 @@
+---
+title: 'Update Auth Token'
+api: 'POST /api/accounts/update-auth'
+description: 'Update an account authentication token'
+---
+
+## Request Body
+
+<ParamField body="id" type="string" required>
+  The account ID
+</ParamField>
+
+<ParamField body="authToken" type="string" required>
+  New JWT authentication token
+</ParamField>
+
+<ParamField body="authTokenExpiresAt" type="number">
+  Token expiration timestamp (ms since epoch)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the operation was successful
+</ResponseField>
+
+## Notes
+
+- Use this to refresh tokens before they expire
+- The account remains active during the update
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/update-auth \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "acct_abc123",
+    "authToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "authTokenExpiresAt": 1706300000000
+  }'
+```
+
+### Response
+
+```json
+{
+  "success": true
+}
+```

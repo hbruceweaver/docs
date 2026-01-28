@@ -1,0 +1,76 @@
+---
+title: Webhooks
+description: 'Real-time notifications for job events'
+---
+
+## Overview
+
+Webhooks notify your application when jobs complete or fail, eliminating the need to poll for status.
+
+<Note>
+Webhook support is coming soon. Currently, use polling to check job status.
+</Note>
+
+## Planned Events
+
+| Event | Description |
+|-------|-------------|
+| `job.completed` | Job finished successfully |
+| `job.failed` | Job failed after all retries |
+| `job.progress` | Job progress update (for long-running jobs) |
+
+## Polling Alternative
+
+Until webhooks are available, poll job status:
+
+```bash
+# Poll every 5 seconds
+while true; do
+  status=$(curl -s "https://higgsfield.ai/api/jobs?id=JOB_ID" \
+    -H "Authorization: Bearer hf_your_api_key" | jq -r '.status')
+
+  if [ "$status" = "completed" ] || [ "$status" = "failed" ]; then
+    echo "Job finished with status: $status"
+    break
+  fi
+
+  sleep 5
+done
+```
+
+## Best Practices
+
+When polling:
+
+1. **Start with longer intervals** - Jobs take time, start with 10-30 second intervals
+2. **Use exponential backoff** - Increase interval if job is still queued
+3. **Set a timeout** - Don't poll forever, set a maximum duration
+4. **Handle failures gracefully** - Check for `failed` status and `failReason`
+
+```javascript
+async function waitForJob(jobId, maxWaitMs = 300000) {
+  const startTime = Date.now();
+  let interval = 5000; // Start at 5 seconds
+
+  while (Date.now() - startTime < maxWaitMs) {
+    const response = await fetch(`/api/jobs?id=${jobId}`, {
+      headers: { Authorization: `Bearer ${API_KEY}` }
+    });
+    const job = await response.json();
+
+    if (job.status === 'completed') {
+      return job.results;
+    }
+
+    if (job.status === 'failed') {
+      throw new Error(`Job failed: ${job.failReason}`);
+    }
+
+    // Exponential backoff, max 30 seconds
+    await sleep(interval);
+    interval = Math.min(interval * 1.5, 30000);
+  }
+
+  throw new Error('Job timed out');
+}
+```

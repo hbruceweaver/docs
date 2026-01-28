@@ -1,0 +1,73 @@
+---
+title: 'Get Stats'
+api: 'GET /api/stats'
+description: 'Get queue and system statistics'
+---
+
+## Response
+
+<ResponseField name="jobs" type="object">
+  Job statistics
+</ResponseField>
+
+<ResponseField name="jobs.queued" type="number">
+  Number of jobs waiting
+</ResponseField>
+
+<ResponseField name="jobs.inProgress" type="number">
+  Number of jobs currently processing
+</ResponseField>
+
+<ResponseField name="jobs.completed" type="number">
+  Number of completed jobs
+</ResponseField>
+
+<ResponseField name="jobs.failed" type="number">
+  Number of failed jobs
+</ResponseField>
+
+<ResponseField name="accounts" type="object">
+  Account statistics
+</ResponseField>
+
+<ResponseField name="accounts.total" type="number">
+  Total accounts
+</ResponseField>
+
+<ResponseField name="accounts.active" type="number">
+  Active (non-disabled) accounts
+</ResponseField>
+
+<ResponseField name="accounts.availableVideoSlots" type="number">
+  Total available video job slots
+</ResponseField>
+
+<ResponseField name="accounts.availableImageSlots" type="number">
+  Total available image job slots
+</ResponseField>
+
+## Example
+
+```bash
+curl "https://higgsfield.ai/api/stats" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Response
+
+```json
+{
+  "jobs": {
+    "queued": 12,
+    "inProgress": 8,
+    "completed": 1547,
+    "failed": 23
+  },
+  "accounts": {
+    "total": 5,
+    "active": 4,
+    "availableVideoSlots": 24,
+    "availableImageSlots": 27
+  }
+}
+```

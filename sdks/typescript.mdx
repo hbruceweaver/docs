@@ -1,0 +1,363 @@
+---
+title: TypeScript SDK
+description: 'Official TypeScript/Node.js client library'
+---
+
+## Installation
+
+```bash
+npm install @higgsfield/sdk
+# or
+pnpm add @higgsfield/sdk
+# or
+yarn add @higgsfield/sdk
+```
+
+## Quick Start
+
+```typescript
+import { Higgsfield } from '@higgsfield/sdk';
+
+const client = new Higgsfield({
+  apiKey: process.env.HIGGSFIELD_API_KEY
+});
+
+// Create and wait for a job
+const result = await client.jobs.createAndWait({
+  type: 'nano_banana_2',
+  params: {
+    prompt: 'A serene mountain landscape at sunset',
+    width: 1024,
+    height: 1024,
+    batch_size: 1,
+    aspect_ratio: '1:1',
+    resolution: '2k'
+  }
+});
+
+console.log(result.raw.url);
+```
+
+## Configuration
+
+```typescript
+const client = new Higgsfield({
+  apiKey: 'hf_...',
+  baseUrl: 'https://higgsfield.ai', // optional
+  timeout: 30000, // request timeout in ms
+  maxRetries: 3   // retry failed requests
+});
+```
+
+## Jobs
+
+### Create a Job
+
+```typescript
+const job = await client.jobs.create({
+  type: 'kling_26',
+  params: {
+    prompt: 'Woman walking on beach at sunset',
+    width: 1920,
+    height: 1080,
+    duration: 5,
+    aspect_ratio: '16:9',
+    sound: true
+  }
+});
+
+console.log(job.id); // j57abc123def456
+```
+
+### Get Job Status
+
+```typescript
+const job = await client.jobs.get('j57abc123def456');
+
+console.log(job.status); // 'queued' | 'in_progress' | 'completed' | 'failed'
+```
+
+### Wait for Completion
+
+```typescript
+const result = await client.jobs.wait('j57abc123def456', {
+  timeout: 300000,    // max wait time (5 min)
+  pollInterval: 5000  // check every 5s
+});
+
+if (result.status === 'completed') {
+  console.log(result.results.raw.url);
+}
+```
+
+### Create and Wait
+
+Convenience method combining create + wait:
+
+```typescript
+const result = await client.jobs.createAndWait({
+  type: 'nano_banana_2',
+  params: { ... }
+}, {
+  timeout: 120000
+});
+```
+
+### List Jobs
+
+```typescript
+const jobs = await client.jobs.list({
+  limit: 10,
+  status: 'completed'
+});
+
+for (const job of jobs) {
+  console.log(job.id, job.type, job.status);
+}
+```
+
+### Cancel a Job
+
+```typescript
+await client.jobs.cancel('j57abc123def456');
+```
+
+### Retry a Failed Job
+
+```typescript
+const newJob = await client.jobs.retry('j57abc123def456');
+```
+
+## Type Definitions
+
+### Job Types
+
+```typescript
+type JobType =
+  | 'kling_26'
+  | 'motion_control'
+  | 'motion_control_v2'
+  | 'kling_o1_edit'
+  | 'nano_banana_2'
+  | 'text2image_soul'
+  | 'seedream'
+  | 'skin_enhancer'
+  | 'topaz_image';
+```
+
+### Job Status
+
+```typescript
+type JobStatus = 'queued' | 'in_progress' | 'completed' | 'failed';
+```
+
+### Job Response
+
+```typescript
+interface Job {
+  id: string;
+  type: JobType;
+  status: JobStatus;
+  createdAt: string;
+  updatedAt: string;
+  results?: {
+    raw: {
+      type: 'image' | 'video';
+      url: string;
+      thumbnail_url?: string;
+    };
+    min?: {
+      type: 'video';
+      url: string;
+    };
+  };
+  failReason?: string;
+}
+```
+
+## Accounts
+
+### List Accounts
+
+```typescript
+const accounts = await client.accounts.list();
+
+for (const account of accounts) {
+  console.log(account.id, account.status, account.email);
+}
+```
+
+### Create Account
+
+```typescript
+const account = await client.accounts.create({
+  email: 'account@example.com',
+  password: 'password',
+  type: 'kling'
+});
+```
+
+### Disable/Enable Account
+
+```typescript
+await client.accounts.disable('account_id');
+await client.accounts.enable('account_id');
+```
+
+## Error Handling
+
+```typescript
+import { Higgsfield, HiggsfieldError } from '@higgsfield/sdk';
+
+try {
+  await client.jobs.create({ ... });
+} catch (error) {
+  if (error instanceof HiggsfieldError) {
+    console.error('API Error:', error.message);
+    console.error('Status:', error.status);
+    console.error('Code:', error.code);
+  }
+}
+```
+
+### Error Types
+
+```typescript
+class HiggsfieldError extends Error {
+  status: number;      // HTTP status code
+  code: string;        // Error code
+  message: string;     // Error message
+}
+
+// Specific error classes
+class AuthenticationError extends HiggsfieldError {}
+class RateLimitError extends HiggsfieldError {}
+class ValidationError extends HiggsfieldError {}
+class NotFoundError extends HiggsfieldError {}
+```
+
+## Examples
+
+### Text-to-Image
+
+```typescript
+const result = await client.jobs.createAndWait({
+  type: 'nano_banana_2',
+  params: {
+    prompt: 'Professional product shot, white background',
+    width: 1024,
+    height: 1024,
+    batch_size: 4,
+    aspect_ratio: '1:1',
+    resolution: '2k'
+  }
+});
+```
+
+### Text-to-Video
+
+```typescript
+const result = await client.jobs.createAndWait({
+  type: 'kling_26',
+  params: {
+    prompt: 'Cinematic drone shot of mountains',
+    width: 1920,
+    height: 1080,
+    duration: 5,
+    aspect_ratio: '16:9',
+    sound: true,
+    cfg_scale: 0.5
+  }
+});
+```
+
+### Image-to-Video
+
+```typescript
+const result = await client.jobs.createAndWait({
+  type: 'kling_26',
+  params: {
+    prompt: 'Gentle camera movement, leaves rustling',
+    width: 1080,
+    height: 1920,
+    duration: 5,
+    sound: false,
+    input_image: {
+      id: 'my-image',
+      type: 'media_input',
+      url: 'https://your-storage.com/image.jpg'
+    }
+  }
+});
+```
+
+### Enhancement Pipeline
+
+```typescript
+// 1. Generate image
+const imageJob = await client.jobs.createAndWait({
+  type: 'text2image_soul',
+  params: {
+    prompt: 'Professional headshot',
+    quality: '1080p',
+    aspect_ratio: '3:4',
+    style_id: 'portrait-uuid',
+    style_strength: 0.7,
+    seed: 42,
+    batch_size: 1
+  }
+});
+
+// 2. Enhance skin
+const enhancedJob = await client.jobs.createAndWait({
+  type: 'skin_enhancer',
+  params: {
+    input_image: {
+      id: imageJob.id,
+      type: 'text2image_soul_job',
+      url: imageJob.results.raw.url
+    },
+    width: 1536,
+    height: 2048,
+    output_width: 1536,
+    output_height: 2048,
+    preset_id: 'default'
+  }
+});
+
+// 3. Upscale
+const finalJob = await client.jobs.createAndWait({
+  type: 'topaz_image',
+  params: {
+    input_image: {
+      id: enhancedJob.id,
+      type: 'skin_enhancer_job',
+      url: enhancedJob.results.raw.url
+    },
+    width: 1536,
+    height: 2048,
+    output_width: 4608,
+    output_height: 6144,
+    denoise: 0.2,
+    sharpen: 0.3,
+    face_enhancement: true,
+    face_enhancement_creativity: 0.3,
+    face_enhancement_strength: 0.5,
+    model: 'Standard V2'
+  }
+});
+
+console.log('Final image:', finalJob.results.raw.url);
+```
+
+## Environment Variables
+
+```bash
+HIGGSFIELD_API_KEY=hf_your_api_key
+HIGGSFIELD_BASE_URL=https://higgsfield.ai  # optional
+```
+
+```typescript
+// Reads from env automatically
+const client = new Higgsfield();
+```

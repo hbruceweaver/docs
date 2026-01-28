@@ -1,0 +1,234 @@
+---
+title: Skin Enhancer
+description: 'Post-processing skin enhancement for portraits'
+---
+
+## Overview
+
+Skin Enhancer is a post-processing model that enhances skin detail in portrait images. Apply it to AI-generated or real photos to improve skin texture and quality.
+
+**Best for:** Portrait refinement, headshots, beauty photography, fixing AI artifacts.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skin_enhancer",
+    "params": {
+      "input_image": {
+        "id": "source-image-id",
+        "type": "text2image_soul_job",
+        "url": "https://cdn.higgsfield.ai/original.png"
+      },
+      "width": 960,
+      "height": 1696,
+      "output_width": 960,
+      "output_height": 1696,
+      "preset_id": "default"
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="input_image" type="object" required>
+  Source image to enhance:
+  - `id` - Image identifier
+  - `type` - Source type (e.g., `text2image_soul_job`, `nano_banana_2_job`)
+  - `url` - URL of the source image
+  - `alt` - Optional alt text
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Input image width.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Input image height.
+</ParamField>
+
+<ParamField body="output_width" type="number" required>
+  Output image width (typically same as input).
+</ParamField>
+
+<ParamField body="output_height" type="number" required>
+  Output image height (typically same as input).
+</ParamField>
+
+<ParamField body="preset_id" type="string" required>
+  Enhancement preset to use.
+</ParamField>
+
+<ParamField body="parent_id" type="string">
+  Job ID of the parent generation (for chaining).
+</ParamField>
+
+## Input Image Types
+
+The `type` field indicates the source of the image:
+
+| Type | Source |
+|------|--------|
+| `text2image_soul_job` | Soul model output |
+| `nano_banana_2_job` | Nano Banana 2 output |
+| `seedream_v4_5_job` | Seedream output |
+| `media_input` | Uploaded image |
+
+## Pricing
+
+| Operation | Credits |
+|-----------|---------|
+| Skin Enhancement | 1 |
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "skin_enhancer",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/enhanced.png"
+    }
+  }
+}
+```
+
+## Workflow
+
+Skin Enhancer works best as part of a pipeline:
+
+```
+1. Generate portrait → 2. Skin Enhancer → 3. (Optional) Topaz Upscale
+```
+
+### Example Pipeline
+
+**Step 1: Generate portrait**
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "text2image_soul",
+    "params": {
+      "prompt": "Professional headshot, natural lighting",
+      "quality": "1080p",
+      "aspect_ratio": "3:4",
+      "style_id": "portrait-style-uuid",
+      "style_strength": 0.7,
+      "seed": 12345,
+      "batch_size": 1
+    }
+  }'
+```
+
+**Step 2: Wait for completion and get URL**
+
+**Step 3: Apply skin enhancement**
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "skin_enhancer",
+    "params": {
+      "input_image": {
+        "id": "portrait-job-id",
+        "type": "text2image_soul_job",
+        "url": "https://cdn.higgsfield.ai/portrait.png"
+      },
+      "width": 1536,
+      "height": 2048,
+      "output_width": 1536,
+      "output_height": 2048,
+      "preset_id": "default"
+    }
+  }'
+```
+
+## Tips
+
+1. **Use on portraits only** - Most effective on images with visible faces
+2. **Match dimensions** - Keep input and output dimensions the same
+3. **Apply before upscaling** - Enhancement at native resolution, then upscale
+4. **Check the result** - Enhancement is subtle; compare before/after
+
+## Examples
+
+### From Soul Generation
+
+```json
+{
+  "type": "skin_enhancer",
+  "params": {
+    "input_image": {
+      "id": "soul-portrait-123",
+      "type": "text2image_soul_job",
+      "url": "https://cdn.higgsfield.ai/soul-output.png"
+    },
+    "width": 1536,
+    "height": 2048,
+    "output_width": 1536,
+    "output_height": 2048,
+    "preset_id": "default"
+  }
+}
+```
+
+### From Nano Banana
+
+```json
+{
+  "type": "skin_enhancer",
+  "params": {
+    "input_image": {
+      "id": "nano-portrait-456",
+      "type": "nano_banana_2_job",
+      "url": "https://cdn.higgsfield.ai/nano-output.png"
+    },
+    "width": 864,
+    "height": 1184,
+    "output_width": 864,
+    "output_height": 1184,
+    "preset_id": "default"
+  }
+}
+```
+
+### From Uploaded Image
+
+```json
+{
+  "type": "skin_enhancer",
+  "params": {
+    "input_image": {
+      "id": "uploaded-photo-789",
+      "type": "media_input",
+      "url": "https://your-storage.com/photo.jpg"
+    },
+    "width": 1920,
+    "height": 2560,
+    "output_width": 1920,
+    "output_height": 2560,
+    "preset_id": "default"
+  }
+}
+```
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| AI portraits with skin issues | Yes |
+| Landscape photos | No |
+| Product photography | No |
+| Fashion/beauty shots | Yes |
+| Already-perfect portraits | Optional |

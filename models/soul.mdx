@@ -1,0 +1,238 @@
+---
+title: Soul
+description: 'Style-controlled image generation'
+---
+
+## Overview
+
+Soul generates images with consistent style using style presets and custom references. Ideal for maintaining visual consistency across multiple generations.
+
+**Best for:** Brand consistency, artistic styles, character design, styled content creation.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "text2image_soul",
+    "params": {
+      "prompt": "Professional portrait in an urban setting",
+      "quality": "1080p",
+      "aspect_ratio": "3:4",
+      "style_id": "your-style-id",
+      "style_strength": 0.8,
+      "enhance_prompt": true,
+      "seed": 42,
+      "batch_size": 2
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="prompt" type="string" required>
+  Text description of the image to generate.
+</ParamField>
+
+<ParamField body="quality" type="string" required>
+  Output quality: `720p` or `1080p`.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" required>
+  Image aspect ratio. See supported ratios.
+</ParamField>
+
+<ParamField body="style_id" type="string" required>
+  UUID of the style preset to use.
+</ParamField>
+
+<ParamField body="style_strength" type="number" required>
+  How strongly to apply the style (0-1). Higher = more stylized.
+</ParamField>
+
+<ParamField body="enhance_prompt" type="boolean" default="false">
+  Let AI enhance your prompt for better results.
+</ParamField>
+
+<ParamField body="seed" type="number" required>
+  Random seed for reproducible results.
+</ParamField>
+
+<ParamField body="batch_size" type="number" default="1">
+  Number of images to generate (1-4).
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  What to avoid in the image.
+</ParamField>
+
+<ParamField body="custom_reference_id" type="string">
+  UUID of a custom reference for style matching.
+</ParamField>
+
+<ParamField body="custom_reference_strength" type="number">
+  Strength of custom reference (0-1).
+</ParamField>
+
+<ParamField body="image_reference" type="object">
+  Reference image for image-to-image style transfer.
+</ParamField>
+
+## Dimensions by Quality
+
+### 720p Quality
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 1:1 | 1024 | 1024 |
+| 16:9 | 1024 | 576 |
+| 9:16 | 576 | 1024 |
+| 4:3 | 1024 | 768 |
+| 3:4 | 768 | 1024 |
+| 3:2 | 1008 | 672 |
+| 2:3 | 672 | 1008 |
+
+### 1080p Quality
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 1:1 | 2048 | 2048 |
+| 16:9 | 2048 | 1152 |
+| 9:16 | 1152 | 2048 |
+| 4:3 | 2048 | 1536 |
+| 3:4 | 1536 | 2048 |
+| 3:2 | 2016 | 1344 |
+| 2:3 | 1344 | 2016 |
+
+## Pricing
+
+| Quality | Credits |
+|---------|---------|
+| 720p | 1 |
+| 1080p | 2 |
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "text2image_soul",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/image.png"
+    }
+  }
+}
+```
+
+## Style Presets
+
+Styles are identified by UUID. Popular categories include:
+
+| Category | Use Case |
+|----------|----------|
+| Photography | Realistic photos, portraits |
+| Illustration | Digital art, illustrations |
+| Anime | Anime and manga styles |
+| Abstract | Non-representational art |
+| Vintage | Retro and film looks |
+
+<Note>
+Contact support or check the dashboard for available style preset IDs.
+</Note>
+
+## Tips
+
+1. **Balance style strength** - Start at 0.5-0.7, adjust based on results
+2. **Use seeds for iteration** - Keep the same seed while adjusting prompt/strength
+3. **Match prompt to style** - Describe content that fits your chosen style
+4. **Combine with references** - Custom references can fine-tune the output
+5. **Quality tradeoffs** - 720p is faster; use 1080p for final production
+
+## Examples
+
+### Consistent Character
+
+Generate the same character with variations:
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "Young woman with red hair, confident expression, modern fashion",
+    "quality": "1080p",
+    "aspect_ratio": "3:4",
+    "style_id": "portrait-style-uuid",
+    "style_strength": 0.7,
+    "seed": 12345,
+    "batch_size": 4
+  }
+}
+```
+
+### Artistic Illustration
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "Mystical forest with glowing mushrooms, fantasy atmosphere",
+    "quality": "1080p",
+    "aspect_ratio": "16:9",
+    "style_id": "fantasy-illustration-uuid",
+    "style_strength": 0.85,
+    "enhance_prompt": true,
+    "seed": 67890,
+    "batch_size": 2
+  }
+}
+```
+
+### Brand Content
+
+Maintain consistent brand aesthetics:
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "Product showcase on minimalist background, clean lines",
+    "quality": "1080p",
+    "aspect_ratio": "1:1",
+    "style_id": "brand-style-uuid",
+    "style_strength": 0.9,
+    "custom_reference_id": "brand-reference-uuid",
+    "custom_reference_strength": 0.5,
+    "seed": 11111,
+    "batch_size": 1
+  }
+}
+```
+
+### With Image Reference
+
+Use an existing image as style reference:
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "Same style, but with autumn scenery",
+    "quality": "1080p",
+    "aspect_ratio": "16:9",
+    "style_id": "photo-style-uuid",
+    "style_strength": 0.6,
+    "image_reference": {
+      "id": "ref-image-id",
+      "url": "https://your-storage.com/reference.jpg",
+      "type": "media_input"
+    },
+    "seed": 22222,
+    "batch_size": 2
+  }
+}
+```

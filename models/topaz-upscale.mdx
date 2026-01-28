@@ -1,0 +1,259 @@
+---
+title: Topaz Upscale
+description: 'AI-powered image upscaling up to 4x'
+---
+
+## Overview
+
+Topaz Upscale increases image resolution using AI. Supports up to 4x upscaling with optional denoising, sharpening, and face enhancement.
+
+**Best for:** Increasing resolution, preparing images for print, enhancing low-res sources.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "topaz_image",
+    "params": {
+      "input_image": {
+        "id": "source-image-id",
+        "type": "seedream_v4_5_job",
+        "url": "https://cdn.higgsfield.ai/original.png"
+      },
+      "width": 1024,
+      "height": 1024,
+      "output_width": 4096,
+      "output_height": 4096,
+      "denoise": 0.2,
+      "sharpen": 0.3,
+      "face_enhancement": false,
+      "face_enhancement_creativity": 0,
+      "face_enhancement_strength": 0,
+      "model": "Standard V2"
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="input_image" type="object" required>
+  Source image to upscale:
+  - `id` - Image identifier
+  - `type` - Source type
+  - `url` - URL of the source image
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Input image width.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Input image height.
+</ParamField>
+
+<ParamField body="output_width" type="number" required>
+  Target output width (up to 4x input).
+</ParamField>
+
+<ParamField body="output_height" type="number" required>
+  Target output height (up to 4x input).
+</ParamField>
+
+<ParamField body="denoise" type="number" default="0.2">
+  Denoising strength (0-1). Removes noise/artifacts.
+</ParamField>
+
+<ParamField body="sharpen" type="number" default="0.3">
+  Sharpening strength (0-1). Enhances edges.
+</ParamField>
+
+<ParamField body="face_enhancement" type="boolean" default="false">
+  Enable AI face enhancement for portraits.
+</ParamField>
+
+<ParamField body="face_enhancement_creativity" type="number" default="0">
+  Face enhancement creativity (0-1). Higher = more AI interpretation.
+</ParamField>
+
+<ParamField body="face_enhancement_strength" type="number" default="0">
+  Face enhancement strength (0-1). How much to apply.
+</ParamField>
+
+<ParamField body="model" type="string" required>
+  Upscaling model: `Standard V2`
+</ParamField>
+
+## Scaling Options
+
+| Scale | Example |
+|-------|---------|
+| 2x | 1024 → 2048 |
+| 3x | 1024 → 3072 |
+| 4x | 1024 → 4096 |
+
+<Note>
+Maximum output dimensions depend on input size. Very large outputs may fail or take longer.
+</Note>
+
+## Pricing
+
+| Operation | Credits |
+|-----------|---------|
+| Upscaling | 1 |
+
+Credit cost is flat regardless of scale factor.
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "topaz_image",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/upscaled.png"
+    }
+  }
+}
+```
+
+## Tips
+
+1. **Start with quality source** - Better input = better output
+2. **Don't over-denoise** - Keep at 0.1-0.3 unless source is noisy
+3. **Moderate sharpening** - 0.2-0.4 is usually enough; too high looks artificial
+4. **Face enhancement for portraits** - Only enable when faces are important
+5. **4x for print** - 2x is often sufficient for web
+
+## Examples
+
+### 2x Upscale for Web
+
+```json
+{
+  "type": "topaz_image",
+  "params": {
+    "input_image": {
+      "id": "web-image",
+      "type": "nano_banana_2_job",
+      "url": "https://cdn.higgsfield.ai/original.png"
+    },
+    "width": 1024,
+    "height": 1024,
+    "output_width": 2048,
+    "output_height": 2048,
+    "denoise": 0.15,
+    "sharpen": 0.25,
+    "face_enhancement": false,
+    "face_enhancement_creativity": 0,
+    "face_enhancement_strength": 0,
+    "model": "Standard V2"
+  }
+}
+```
+
+### 4x Upscale for Print
+
+```json
+{
+  "type": "topaz_image",
+  "params": {
+    "input_image": {
+      "id": "print-ready",
+      "type": "seedream_v4_5_job",
+      "url": "https://cdn.higgsfield.ai/source.png"
+    },
+    "width": 2048,
+    "height": 2048,
+    "output_width": 8192,
+    "output_height": 8192,
+    "denoise": 0.2,
+    "sharpen": 0.3,
+    "face_enhancement": false,
+    "face_enhancement_creativity": 0,
+    "face_enhancement_strength": 0,
+    "model": "Standard V2"
+  }
+}
+```
+
+### Portrait with Face Enhancement
+
+```json
+{
+  "type": "topaz_image",
+  "params": {
+    "input_image": {
+      "id": "portrait",
+      "type": "text2image_soul_job",
+      "url": "https://cdn.higgsfield.ai/portrait.png"
+    },
+    "width": 1536,
+    "height": 2048,
+    "output_width": 4608,
+    "output_height": 6144,
+    "denoise": 0.2,
+    "sharpen": 0.25,
+    "face_enhancement": true,
+    "face_enhancement_creativity": 0.3,
+    "face_enhancement_strength": 0.5,
+    "model": "Standard V2"
+  }
+}
+```
+
+### Landscape with Careful Settings
+
+```json
+{
+  "type": "topaz_image",
+  "params": {
+    "input_image": {
+      "id": "landscape",
+      "type": "nano_banana_2_job",
+      "url": "https://cdn.higgsfield.ai/landscape.png"
+    },
+    "width": 1344,
+    "height": 768,
+    "output_width": 5376,
+    "output_height": 3072,
+    "denoise": 0.1,
+    "sharpen": 0.4,
+    "face_enhancement": false,
+    "face_enhancement_creativity": 0,
+    "face_enhancement_strength": 0,
+    "model": "Standard V2"
+  }
+}
+```
+
+## Workflow Integration
+
+Topaz works well at the end of a generation pipeline:
+
+```
+Generate (Nano/Soul/Seedream) → Skin Enhance (if portrait) → Topaz Upscale
+```
+
+### Full Pipeline Example
+
+1. Generate with Seedream at 2K
+2. Apply skin enhancement (for portraits)
+3. Upscale 2x with Topaz to 4K
+
+Total credits: 2 (Seedream) + 1 (Skin) + 1 (Topaz) = 4 credits
+
+## Parameter Recommendations
+
+| Content Type | Denoise | Sharpen | Face Enhancement |
+|--------------|---------|---------|------------------|
+| Portraits | 0.2 | 0.25 | Yes (0.3-0.5 strength) |
+| Landscapes | 0.1 | 0.35 | No |
+| Product photos | 0.15 | 0.4 | No |
+| Abstract/Art | 0.1 | 0.2 | No |
+| Text/Graphics | 0.05 | 0.5 | No |

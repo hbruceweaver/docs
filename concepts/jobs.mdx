@@ -1,0 +1,349 @@
+---
+title: Jobs
+description: 'Understanding job types, statuses, and lifecycle'
+---
+
+## Job Lifecycle
+
+Jobs progress through these statuses:
+
+```
+queued → in_progress → completed
+                    ↘ failed
+```
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Waiting for an available generation account |
+| `in_progress` | Actively being processed |
+| `completed` | Finished successfully with results |
+| `failed` | Failed after all retry attempts |
+
+## Available Job Types
+
+| Type | Category | Description | Credits |
+|------|----------|-------------|---------|
+| `kling_26` | Video | Text/image-to-video | 10 |
+| `motion_control` | Video | Character transfer | 10 |
+| `motion_control_v2` | Video | Character transfer (extended) | 10 |
+| `kling_o1_edit` | Video | Video editing with refs | 10 |
+| `nano_banana_2` | Image | Fast text-to-image | 3 |
+| `text2image_soul` | Image | Style-controlled | 2 |
+| `seedream` | Image | High-res (2-4K) | 2-4 |
+| `skin_enhancer` | Image | Portrait enhancement | 1 |
+| `topaz_image` | Image | Upscaling | 1 |
+
+## Video Generation Jobs
+
+### kling_26
+
+Generate videos from text or images. See [Kling 2.6 reference](/models/kling-26).
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "A woman walking on a beach at sunset",
+    "width": 1920,
+    "height": 1080,
+    "duration": 5,
+    "aspect_ratio": "16:9",
+    "sound": true,
+    "cfg_scale": 0.5,
+    "enhance_prompt": true
+  }
+}
+```
+
+For image-to-video, add `input_image`:
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Gentle camera movement, leaves rustling",
+    "width": 1080,
+    "height": 1920,
+    "duration": 5,
+    "sound": false,
+    "input_image": {
+      "id": "image-id",
+      "type": "media_input",
+      "url": "https://your-storage.com/image.jpg"
+    }
+  }
+}
+```
+
+### motion_control
+
+Transfer a character/subject from an image onto a motion video. See [Motion Control reference](/models/kling-motion-control).
+
+```json
+{
+  "type": "motion_control",
+  "params": {
+    "prompt": "walking through a forest",
+    "mode": "std",
+    "width": 720,
+    "height": 1280,
+    "backgroundSource": "input_video",
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "motion-video",
+          "type": "video_input",
+          "url": "https://your-storage.com/motion.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "character",
+          "type": "media_input",
+          "url": "https://your-storage.com/character.png"
+        }
+      }
+    ]
+  }
+}
+```
+
+### motion_control_v2
+
+Extended version with additional parameters:
+
+```json
+{
+  "type": "motion_control_v2",
+  "params": {
+    "prompt": "dancing in a studio",
+    "mode": "pro",
+    "width": 720,
+    "height": 1280,
+    "character_orientation": "video",
+    "seed": 12345,
+    "duration": 5,
+    "medias": [...]
+  }
+}
+```
+
+### kling_o1_edit
+
+Edit videos using image references. See [Kling O1 Edit reference](/models/kling-o1-edit).
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "Replace the person in <<<video_1>>> with <<<image_1>>>",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "scene",
+        "type": "video_input",
+        "url": "https://your-storage.com/scene.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "character",
+        "type": "media_input",
+        "url": "https://your-storage.com/character.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+## Image Generation Jobs
+
+### nano_banana_2
+
+Fast text-to-image generation. See [Nano Banana 2 reference](/models/nano-banana-2).
+
+```json
+{
+  "type": "nano_banana_2",
+  "params": {
+    "prompt": "a beautiful sunset over mountains",
+    "width": 1024,
+    "height": 1024,
+    "batch_size": 1,
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }
+}
+```
+
+### text2image_soul
+
+Style-controlled generation. See [Soul reference](/models/soul).
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "professional portrait",
+    "quality": "1080p",
+    "aspect_ratio": "3:4",
+    "style_id": "style-uuid",
+    "style_strength": 0.8,
+    "enhance_prompt": true,
+    "seed": 42,
+    "batch_size": 2
+  }
+}
+```
+
+### seedream
+
+High-resolution generation (2K-4K). See [Seedream reference](/models/seedream).
+
+```json
+{
+  "type": "seedream",
+  "params": {
+    "model": "seedream_v4_5",
+    "prompt": "stunning photograph",
+    "width": 2048,
+    "height": 2048,
+    "quality": "high",
+    "aspect_ratio": "1:1",
+    "batch_size": 1,
+    "seed": 12345
+  }
+}
+```
+
+### skin_enhancer
+
+Portrait post-processing. See [Skin Enhancer reference](/models/skin-enhancer).
+
+```json
+{
+  "type": "skin_enhancer",
+  "params": {
+    "input_image": {
+      "id": "portrait-id",
+      "type": "text2image_soul_job",
+      "url": "https://cdn.higgsfield.ai/portrait.png"
+    },
+    "width": 1536,
+    "height": 2048,
+    "output_width": 1536,
+    "output_height": 2048,
+    "preset_id": "default"
+  }
+}
+```
+
+### topaz_image
+
+Image upscaling (up to 4x). See [Topaz Upscale reference](/models/topaz-upscale).
+
+```json
+{
+  "type": "topaz_image",
+  "params": {
+    "input_image": {
+      "id": "image-id",
+      "type": "seedream_v4_5_job",
+      "url": "https://cdn.higgsfield.ai/image.png"
+    },
+    "width": 1024,
+    "height": 1024,
+    "output_width": 4096,
+    "output_height": 4096,
+    "denoise": 0.2,
+    "sharpen": 0.3,
+    "face_enhancement": false,
+    "face_enhancement_creativity": 0,
+    "face_enhancement_strength": 0,
+    "model": "Standard V2"
+  }
+}
+```
+
+## Job Options
+
+### External IDs
+
+Track jobs with your own identifiers:
+
+```json
+{
+  "type": "nano_banana_2",
+  "externalId": "order-12345",
+  "params": {...}
+}
+```
+
+Query by external ID:
+
+```bash
+curl "https://higgsfield.ai/api/jobs?externalId=order-12345" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Automatic Retries
+
+Enable automatic retries on failure:
+
+```json
+{
+  "type": "motion_control",
+  "retryOnFailure": true,
+  "maxRetries": 3,
+  "params": {...}
+}
+```
+
+## Job Results
+
+Completed jobs include results:
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "kling_26",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/video.mp4",
+      "thumbnail_url": "https://cdn.higgsfield.ai/thumb.webp"
+    },
+    "min": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/video_compressed.mp4"
+    }
+  }
+}
+```
+
+| Variant | Description |
+|---------|-------------|
+| `raw` | Full quality output |
+| `min` | Compressed/optimized version |
+
+## Failed Jobs
+
+Failed jobs include a `failReason`:
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "kling_26",
+  "status": "failed",
+  "failReason": "image_recognition_failed"
+}
+```
+
+See [Error Codes](/api-reference/errors) for all failure reasons.

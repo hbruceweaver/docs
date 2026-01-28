@@ -1,0 +1,122 @@
+---
+title: Credits & Pricing
+description: 'Understanding credits and costs'
+---
+
+## Overview
+
+Credits are the billing unit for API usage. Each job type has a fixed credit cost.
+
+## Credit Costs
+
+### Video Generation
+
+| Model | Type | Duration | Credits |
+|-------|------|----------|---------|
+| Kling 2.6 | Text/Image-to-Video | 5s | 10 |
+| Kling 2.6 | Text/Image-to-Video | 10s | 20 |
+| Motion Control | Character Transfer | 5-10s | 10 |
+| Motion Control V2 | Character Transfer | 5-10s | 10 |
+| Kling O1 Edit | Video Editing | 3-10s | 10 |
+
+### Image Generation
+
+| Model | Type | Credits |
+|-------|------|---------|
+| Nano Banana 2 | Text-to-Image | 3 |
+| Soul | Style-Controlled | 2 |
+| Seedream (basic) | High-Res 2K | 2 |
+| Seedream (high) | High-Res 4K | 4 |
+
+### Post-Processing
+
+| Model | Type | Credits |
+|-------|------|---------|
+| Skin Enhancer | Portrait Enhancement | 1 |
+| Topaz Upscale | Image Upscaling | 1 |
+
+## Cost Examples
+
+### Simple Image Generation
+
+```
+Nano Banana 2 (4 images) = 3 credits
+```
+
+### Enhanced Portrait Pipeline
+
+```
+Soul portrait (1080p)     = 2 credits
+Skin Enhancer            = 1 credit
+Topaz Upscale (3x)       = 1 credit
+─────────────────────────────────────
+Total                    = 4 credits
+```
+
+### Video from Generated Image
+
+```
+Nano Banana 2 image      = 3 credits
+Kling 2.6 animation (5s) = 10 credits
+─────────────────────────────────────
+Total                    = 13 credits
+```
+
+### Motion Control Video
+
+```
+Motion Control (pro)     = 10 credits
+```
+
+## Checking Balance
+
+Check your credit balance in the [Dashboard](https://higgsfield.dev/dashboard).
+
+## Failed Jobs
+
+Failed jobs are not charged. Credits are only deducted when a job completes successfully.
+
+## Batch Generation
+
+Batch generation (e.g., `batch_size: 4`) charges once for the entire batch, not per image.
+
+```json
+{
+  "type": "nano_banana_2",
+  "params": {
+    "batch_size": 4,  // 4 images
+    ...
+  }
+}
+// Cost: 3 credits (not 12)
+```
+
+## Purchasing Credits
+
+Contact sales or visit the Dashboard to purchase credit packages.
+
+| Package | Credits | Best For |
+|---------|---------|----------|
+| Starter | 100 | Testing, prototypes |
+| Growth | 1,000 | Regular usage |
+| Scale | 10,000 | Production workloads |
+| Enterprise | Custom | High volume |
+
+## Unlimited Mode
+
+Some accounts have unlimited mode for specific job types. Limitations:
+
+- 10-second Kling 2.6 videos not available
+- Some premium features restricted
+- Contact sales for details
+
+## Usage Tracking
+
+Track usage via the API:
+
+```bash
+curl "https://higgsfield.ai/api/stats" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+Response includes jobs by type and status.

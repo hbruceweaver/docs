@@ -1,0 +1,54 @@
+---
+title: "List Models"
+api: "GET /api/pricing/models"
+description: "Get a list of all available AI models"
+---
+
+Returns all models available for job creation along with their pricing tiers.
+
+## Response
+
+<ResponseField name="models" type="string[]" required>
+  Array of model identifiers that can be used when creating jobs.
+</ResponseField>
+
+## Available Models
+
+| Model | Type | Description |
+|-------|------|-------------|
+| `kling_26` | Video | Text/image-to-video generation |
+| `motion_control` | Video | Character transfer to motion video |
+| `motion_control_v2` | Video | Enhanced motion control |
+| `kling_video_edit` | Video | Edit video with image references |
+| `kling_video_reference` | Video | Video generation with reference |
+| `nano_banana_2` | Image | Fast image generation |
+| `seedream` | Image | High-resolution image generation |
+| `text2image_soul` | Image | Style-controlled image generation |
+| `skin_enhancer` | Image | Skin enhancement post-processing |
+| `topaz_image` | Image | Image upscaling |
+
+<RequestExample>
+```bash
+curl -X GET https://higgsfield.ai/api/pricing/models \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+</RequestExample>
+
+<ResponseExample>
+```json
+{
+  "models": [
+    "nano_banana_2",
+    "seedream",
+    "text2image_soul",
+    "skin_enhancer",
+    "topaz_image",
+    "kling_26",
+    "motion_control",
+    "motion_control_v2",
+    "kling_video_edit",
+    "kling_video_reference"
+  ]
+}
+```
+</ResponseExample>

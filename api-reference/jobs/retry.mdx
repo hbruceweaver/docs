@@ -1,0 +1,47 @@
+---
+title: 'Retry Job'
+api: 'POST /api/jobs/retry'
+description: 'Retry a failed job'
+---
+
+## Request Body
+
+<ParamField body="id" type="string" required>
+  The job ID to retry
+</ParamField>
+
+## Response
+
+<ResponseField name="job" type="object" required>
+  The updated job object with `queued` status
+</ResponseField>
+
+## Notes
+
+- Only jobs with `failed` status can be retried
+- Retrying resets the job to `queued` status
+- The job uses the same parameters as the original
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs/retry \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "j57abc123def456"}'
+```
+
+### Response
+
+```json
+{
+  "job": {
+    "_id": "j57abc123def456",
+    "type": "kling_26",
+    "status": "queued",
+    "params": { ... },
+    "createdAt": 1706428800000,
+    "retryCount": 1
+  }
+}
+```

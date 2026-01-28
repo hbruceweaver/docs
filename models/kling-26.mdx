@@ -1,0 +1,183 @@
+---
+title: Kling 2.6
+description: 'Text-to-video and image-to-video generation with audio'
+---
+
+## Overview
+
+Kling 2.6 generates high-quality videos from text prompts or still images. Supports optional audio generation.
+
+**Best for:** Creating videos from scratch, animating images, adding motion to concepts.
+
+## Quick Start
+
+### Text-to-Video
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_26",
+    "params": {
+      "prompt": "A woman walking on a beach at sunset, golden hour lighting",
+      "width": 1920,
+      "height": 1080,
+      "duration": 5,
+      "aspect_ratio": "16:9",
+      "sound": true,
+      "cfg_scale": 0.5,
+      "enhance_prompt": true
+    }
+  }'
+```
+
+### Image-to-Video
+
+Animate a still image:
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_26",
+    "params": {
+      "prompt": "Gentle camera movement, leaves rustling in wind",
+      "width": 1080,
+      "height": 1920,
+      "duration": 5,
+      "sound": false,
+      "input_image": {
+        "id": "your-image-id",
+        "type": "media_input",
+        "url": "https://your-storage.com/image.jpg"
+      }
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="prompt" type="string" required>
+  Description of the video to generate. Be specific about motion, lighting, and camera movement.
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Output width in pixels. See dimensions table below.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Output height in pixels. See dimensions table below.
+</ParamField>
+
+<ParamField body="duration" type="number" required>
+  Video length in seconds. `5` or `10`. Note: 10-second videos not available in unlimited mode.
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string">
+  Aspect ratio: `16:9`, `1:1`, or `9:16`. Set to `null` for image-to-video.
+</ParamField>
+
+<ParamField body="sound" type="boolean" default="false">
+  Enable AI-generated audio.
+</ParamField>
+
+<ParamField body="cfg_scale" type="number" default="0.5">
+  Prompt adherence (0-1). Higher = stricter adherence.
+</ParamField>
+
+<ParamField body="enhance_prompt" type="boolean" default="false">
+  Let AI enhance your prompt for better results.
+</ParamField>
+
+<ParamField body="negative_prompt" type="string">
+  What to avoid in the video. Auto-filled if not provided.
+</ParamField>
+
+<ParamField body="input_image" type="object">
+  Image to animate (for image-to-video). Contains `id`, `type`, `url`.
+</ParamField>
+
+<ParamField body="motion_id" type="string">
+  Motion preset UUID. Default: `7077cde8-7947-46d6-aea2-dbf2ff9d441c` (general).
+</ParamField>
+
+## Dimensions
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 16:9 | 1920 | 1080 |
+| 1:1 | 1080 | 1080 |
+| 9:16 | 1080 | 1920 |
+
+## Pricing
+
+| Duration | Credits |
+|----------|---------|
+| 5 seconds | 10 |
+| 10 seconds | 20 |
+
+<Warning>
+10-second videos are not available in unlimited mode. Only 5-second generation works with unlimited accounts.
+</Warning>
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "kling_26",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/video.mp4",
+      "thumbnail_url": "https://cdn.higgsfield.ai/thumb.webp"
+    }
+  }
+}
+```
+
+## Tips
+
+1. **Be specific about motion** - "Camera slowly pans left" is better than "moving camera"
+2. **Include lighting details** - "Golden hour", "soft diffused light", "dramatic shadows"
+3. **Describe the scene** - Set the context before describing action
+4. **Use audio wisely** - Audio generation adds processing time but creates more immersive content
+5. **Start with 5 seconds** - Test prompts with shorter videos before committing to 10s
+
+## Examples
+
+### Cinematic Scene
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Cinematic shot of a coffee cup on a wooden table, steam rising slowly, morning light streaming through window, shallow depth of field",
+    "width": 1920,
+    "height": 1080,
+    "duration": 5,
+    "aspect_ratio": "16:9",
+    "sound": false,
+    "cfg_scale": 0.7
+  }
+}
+```
+
+### Social Media Content
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Person scrolling on phone, smile appearing on face, bright colorful background",
+    "width": 1080,
+    "height": 1920,
+    "duration": 5,
+    "aspect_ratio": "9:16",
+    "sound": true
+  }
+}
+```

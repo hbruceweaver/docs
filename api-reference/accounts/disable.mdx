@@ -1,0 +1,40 @@
+---
+title: 'Disable Account'
+api: 'POST /api/accounts/disable'
+description: 'Temporarily disable an account'
+---
+
+## Request Body
+
+<ParamField body="id" type="string" required>
+  The account ID to disable
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the operation was successful
+</ResponseField>
+
+## Notes
+
+- Disabled accounts will not receive new jobs
+- In-progress jobs continue to completion
+- Use [Enable Account](/api-reference/accounts/enable) to re-enable
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/disable \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "acct_abc123"}'
+```
+
+### Response
+
+```json
+{
+  "success": true
+}
+```

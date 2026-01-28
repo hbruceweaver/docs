@@ -1,0 +1,147 @@
+---
+title: "Calculate Price"
+api: "POST /api/pricing/calculate"
+description: "Calculate the price for a job without creating it"
+---
+
+Estimate the cost of a job before creating it. Useful for displaying pricing to users or validating budgets.
+
+## Request Body
+
+<ParamField body="model" type="string" required>
+  The model identifier (e.g., `kling_26`, `nano_banana_2`).
+</ParamField>
+
+<ParamField body="params" type="object" required>
+  Model-specific parameters that affect pricing.
+</ParamField>
+
+<ParamField body="use_unlim" type="boolean" default="true">
+  Whether to use unlimited tier pricing (90% off) if eligible.
+</ParamField>
+
+## Response
+
+<ResponseField name="falPrice" type="number" required>
+  The base FAL.ai price before any discounts.
+</ResponseField>
+
+<ResponseField name="yourPrice" type="number" required>
+  Your final price after tier discounts.
+</ResponseField>
+
+<ResponseField name="tier" type="string" required>
+  Pricing tier applied: `unlimited` (90% off) or `metered` (50% off).
+</ResponseField>
+
+<ResponseField name="discount" type="string" required>
+  Discount percentage: `90%` or `50%`.
+</ResponseField>
+
+<ResponseField name="model" type="string" required>
+  The model used for calculation.
+</ResponseField>
+
+<ResponseField name="params" type="object" required>
+  Echo of the parameters used for calculation.
+</ResponseField>
+
+## Pricing Tiers
+
+| Tier | Discount | Eligibility |
+|------|----------|-------------|
+| Unlimited | 90% off | Most models, some parameter restrictions |
+| Metered | 50% off | All models, no restrictions |
+
+### Unlimited Tier Restrictions
+
+Some models have restrictions for unlimited pricing:
+- `kling_26`: Only 5-second videos qualify for unlimited
+- `skin_enhancer`: Always metered
+- `topaz_image`: Always metered
+
+<RequestExample>
+```bash
+curl -X POST https://higgsfield.ai/api/pricing/calculate \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling_26",
+    "params": {
+      "duration": 5,
+      "sound": true
+    },
+    "use_unlim": true
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json
+{
+  "falPrice": 0.70,
+  "yourPrice": 0.07,
+  "tier": "unlimited",
+  "discount": "90%",
+  "model": "kling_26",
+  "params": {
+    "duration": 5,
+    "sound": true
+  }
+}
+```
+</ResponseExample>
+
+## Examples
+
+### Image Generation (Unlimited)
+
+```bash
+curl -X POST https://higgsfield.ai/api/pricing/calculate \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "nano_banana_2",
+    "params": {
+      "resolution": "2k",
+      "batch_size": 4
+    }
+  }'
+```
+
+Response:
+```json
+{
+  "falPrice": 0.48,
+  "yourPrice": 0.048,
+  "tier": "unlimited",
+  "discount": "90%",
+  "model": "nano_banana_2"
+}
+```
+
+### 10-Second Video (Metered Only)
+
+```bash
+curl -X POST https://higgsfield.ai/api/pricing/calculate \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kling_26",
+    "params": {
+      "duration": 10,
+      "sound": false
+    }
+  }'
+```
+
+Response:
+```json
+{
+  "falPrice": 0.70,
+  "yourPrice": 0.35,
+  "tier": "metered",
+  "discount": "50%",
+  "model": "kling_26"
+}
+```

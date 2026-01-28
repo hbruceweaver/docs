@@ -1,0 +1,69 @@
+---
+title: 'List Jobs'
+api: 'GET /api/jobs'
+description: 'List jobs with optional filtering'
+---
+
+## Query Parameters
+
+<ParamField query="status" type="string">
+  Filter by status: `queued`, `in_progress`, `completed`, or `failed`
+</ParamField>
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of jobs to return
+</ParamField>
+
+<Note>
+When no `id` or `externalId` is provided, this endpoint returns a list of jobs.
+</Note>
+
+## Response
+
+<ResponseField name="jobs" type="array">
+  Array of job objects
+</ResponseField>
+
+## Examples
+
+### List All Jobs
+
+```bash
+curl "https://higgsfield.ai/api/jobs" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### List Queued Jobs
+
+```bash
+curl "https://higgsfield.ai/api/jobs?status=queued" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### List with Limit
+
+```bash
+curl "https://higgsfield.ai/api/jobs?status=completed&limit=10" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Response
+
+```json
+{
+  "jobs": [
+    {
+      "id": "j57abc123def456",
+      "type": "nano_banana_2",
+      "status": "completed",
+      "createdAt": 1706123456789
+    },
+    {
+      "id": "j57def456ghi789",
+      "type": "motion_control",
+      "status": "in_progress",
+      "createdAt": 1706123456000
+    }
+  ]
+}
+```

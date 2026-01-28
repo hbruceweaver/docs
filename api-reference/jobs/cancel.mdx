@@ -1,0 +1,46 @@
+---
+title: 'Cancel Job'
+api: 'POST /api/jobs/cancel'
+description: 'Cancel a queued or in-progress job'
+---
+
+## Request Body
+
+<ParamField body="id" type="string" required>
+  The job ID to cancel
+</ParamField>
+
+## Response
+
+<ResponseField name="job" type="object" required>
+  The updated job object with `cancelled` status
+</ResponseField>
+
+## Notes
+
+- Jobs in `pending` or `queued` status are cancelled immediately
+- Jobs in `dispatched` or `running` status send a cancellation request to the generation service
+- Jobs already `completed` or `failed` cannot be cancelled
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs/cancel \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "j57abc123def456"}'
+```
+
+### Response
+
+```json
+{
+  "job": {
+    "_id": "j57abc123def456",
+    "type": "kling_26",
+    "status": "cancelled",
+    "params": { ... },
+    "createdAt": 1706428800000
+  }
+}
+```

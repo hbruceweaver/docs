@@ -1,0 +1,266 @@
+---
+title: Kling O1 Edit
+description: 'Edit videos with image references'
+---
+
+## Overview
+
+Kling O1 Edit lets you edit videos by referencing images within your prompt. You can replace elements, add characters, or modify scenes using image inputs.
+
+**Best for:** Video editing, adding elements to existing footage, scene modification.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_o1_edit",
+    "params": {
+      "model": "kling-video-edit",
+      "prompt": "Replace the person with <<<image_1>>> walking through the scene from <<<video_1>>>",
+      "mode": "std",
+      "width": 1280,
+      "height": 720,
+      "input_videos": [
+        {
+          "id": "scene-video",
+          "type": "video_input",
+          "url": "https://your-storage.com/scene.mp4"
+        }
+      ],
+      "input_images": [
+        {
+          "id": "character-image",
+          "type": "media_input",
+          "url": "https://your-storage.com/character.png"
+        }
+      ],
+      "kling_element_ids": []
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="model" type="string" required>
+  Model variant:
+  - `kling-video-edit` - Auto settings, simpler usage
+  - `kling-video-reference` - Manual settings, more control
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Edit instructions using references:
+  - `<<<video_1>>>`, `<<<video_2>>>` - Reference input videos
+  - `<<<image_1>>>`, `<<<image_2>>>` - Reference input images
+</ParamField>
+
+<ParamField body="mode" type="string" required>
+  Quality mode: `std` only.
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Output width. See dimensions table.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Output height. See dimensions table.
+</ParamField>
+
+<ParamField body="input_videos" type="array" required>
+  Array of video inputs to reference in prompt.
+</ParamField>
+
+<ParamField body="input_images" type="array" required>
+  Array of image inputs to reference in prompt.
+</ParamField>
+
+<ParamField body="kling_element_ids" type="array">
+  Element IDs for advanced editing (typically empty).
+</ParamField>
+
+### Video Reference Model Parameters
+
+When using `kling-video-reference`, additional parameters are available:
+
+<ParamField body="aspect_ratio" type="string">
+  Output aspect ratio: `16:9`, `1:1`, or `9:16`.
+</ParamField>
+
+<ParamField body="duration" type="number">
+  Output duration in seconds (3-10).
+</ParamField>
+
+## Input Formats
+
+### Video Input
+
+```json
+{
+  "id": "unique-id",
+  "type": "video_input",
+  "url": "https://your-storage.com/video.mp4"
+}
+```
+
+### Image Input
+
+```json
+{
+  "id": "unique-id",
+  "type": "media_input",
+  "url": "https://your-storage.com/image.jpg"
+}
+```
+
+## Dimensions
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 16:9 | 1280 | 720 |
+| 1:1 | 720 | 720 |
+| 9:16 | 405 | 720 |
+
+## Pricing
+
+| Duration | Credits |
+|----------|---------|
+| 3-5 seconds | 10 |
+| 6-10 seconds | 15-20 |
+
+## Prompt Syntax
+
+Use `<<<type_N>>>` to reference inputs in order:
+
+| Reference | Meaning |
+|-----------|---------|
+| `<<<video_1>>>` | First video in `input_videos` |
+| `<<<video_2>>>` | Second video in `input_videos` |
+| `<<<image_1>>>` | First image in `input_images` |
+| `<<<image_2>>>` | Second image in `input_images` |
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "kling_o1_edit",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/output.mp4",
+      "thumbnail_url": "https://cdn.higgsfield.ai/thumb.webp"
+    }
+  }
+}
+```
+
+## Examples
+
+### Replace Subject
+
+Replace a person in a video with a different character:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "The character from <<<image_1>>> is walking through the scene, maintaining the same motion and timing as <<<video_1>>>",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "original-scene",
+        "type": "video_input",
+        "url": "https://your-storage.com/scene.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "new-character",
+        "type": "media_input",
+        "url": "https://your-storage.com/character.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+### Add Element
+
+Add an object to an existing scene:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "Add <<<image_1>>> to the table in <<<video_1>>>, the object should be stationary",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "room-scene",
+        "type": "video_input",
+        "url": "https://your-storage.com/room.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "coffee-cup",
+        "type": "media_input",
+        "url": "https://your-storage.com/cup.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+### Manual Control (Video Reference)
+
+Use the video-reference model for more control:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-reference",
+    "prompt": "Transform the scene from <<<video_1>>> to include <<<image_1>>> as the main character",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "input_videos": [
+      {
+        "id": "source",
+        "type": "video_input",
+        "url": "https://your-storage.com/source.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "character",
+        "type": "media_input",
+        "url": "https://your-storage.com/char.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+## Tips
+
+1. **Be specific in prompts** - Describe exactly what to do with each reference
+2. **Match aspect ratios** - Input video and output should have compatible aspect ratios
+3. **Use clear references** - Images with clear subjects and transparent backgrounds work best
+4. **Order matters** - Reference numbering corresponds to array order
+5. **Keep edits focused** - One major edit per generation typically works better than multiple changes

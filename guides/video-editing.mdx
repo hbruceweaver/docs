@@ -1,0 +1,296 @@
+---
+title: Video Editing
+description: 'Edit videos using image references with Kling O1 Edit'
+---
+
+## Overview
+
+Kling O1 Edit lets you edit videos by referencing images in your prompt. Replace subjects, add elements, or modify scenes.
+
+## Prerequisites
+
+- API key
+- A source video (hosted URL)
+- Reference images (hosted URLs)
+- 10-20 credits depending on duration
+
+## How It Works
+
+Use special syntax in your prompt to reference inputs:
+
+- `<<<video_1>>>` - Reference the first video
+- `<<<image_1>>>` - Reference the first image
+- `<<<image_2>>>` - Reference the second image
+- etc.
+
+The model interprets these references and applies your edits.
+
+## Step 1: Prepare Your Assets
+
+### Source Video
+
+- Format: MP4
+- Duration: 3-10 seconds
+- Content: The video you want to edit
+
+### Reference Images
+
+- Format: JPEG, PNG
+- Content: Elements to add or use for replacement
+- Tip: Transparent PNGs work best for overlays
+
+## Step 2: Create the Job
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_o1_edit",
+    "params": {
+      "model": "kling-video-edit",
+      "prompt": "Replace the person in <<<video_1>>> with the character from <<<image_1>>>, maintaining the same motion and timing",
+      "mode": "std",
+      "width": 1280,
+      "height": 720,
+      "input_videos": [
+        {
+          "id": "original-scene",
+          "type": "video_input",
+          "url": "https://your-storage.com/scene.mp4"
+        }
+      ],
+      "input_images": [
+        {
+          "id": "new-character",
+          "type": "media_input",
+          "url": "https://your-storage.com/character.png"
+        }
+      ],
+      "kling_element_ids": []
+    }
+  }'
+```
+
+## Reference Syntax
+
+| Reference | Maps To |
+|-----------|---------|
+| `<<<video_1>>>` | `input_videos[0]` |
+| `<<<video_2>>>` | `input_videos[1]` |
+| `<<<image_1>>>` | `input_images[0]` |
+| `<<<image_2>>>` | `input_images[1]` |
+| `<<<image_3>>>` | `input_images[2]` |
+
+## Model Variants
+
+| Model | Use Case |
+|-------|----------|
+| `kling-video-edit` | Auto settings, simpler |
+| `kling-video-reference` | Manual control, more parameters |
+
+### kling-video-reference
+
+Additional parameters available:
+
+```json
+{
+  "model": "kling-video-reference",
+  "aspect_ratio": "16:9",
+  "duration": 5
+}
+```
+
+## Examples
+
+### Replace Subject
+
+Replace a person with a different character:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "The character from <<<image_1>>> walks through the scene from <<<video_1>>>, same motion, same lighting",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "walking-person",
+        "type": "video_input",
+        "url": "https://your-storage.com/walking.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "replacement",
+        "type": "media_input",
+        "url": "https://your-storage.com/character.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+### Add Object to Scene
+
+Place an object into a video:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "Add <<<image_1>>> to the table in <<<video_1>>>, the object stays stationary, natural lighting match",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "room-scene",
+        "type": "video_input",
+        "url": "https://your-storage.com/table-scene.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "coffee-cup",
+        "type": "media_input",
+        "url": "https://your-storage.com/cup.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+### Multiple References
+
+Use multiple images in one edit:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-edit",
+    "prompt": "In <<<video_1>>>, replace the main character with <<<image_1>>> and add <<<image_2>>> as a floating element in the background",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "input_videos": [
+      {
+        "id": "base-scene",
+        "type": "video_input",
+        "url": "https://your-storage.com/scene.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "character",
+        "type": "media_input",
+        "url": "https://your-storage.com/person.png"
+      },
+      {
+        "id": "logo",
+        "type": "media_input",
+        "url": "https://your-storage.com/logo.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+### With Manual Control
+
+Use video-reference model for more control:
+
+```json
+{
+  "type": "kling_o1_edit",
+  "params": {
+    "model": "kling-video-reference",
+    "prompt": "Transform <<<video_1>>> to feature <<<image_1>>> as the main subject",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "aspect_ratio": "16:9",
+    "duration": 5,
+    "input_videos": [
+      {
+        "id": "source",
+        "type": "video_input",
+        "url": "https://your-storage.com/source.mp4"
+      }
+    ],
+    "input_images": [
+      {
+        "id": "subject",
+        "type": "media_input",
+        "url": "https://your-storage.com/subject.png"
+      }
+    ],
+    "kling_element_ids": []
+  }
+}
+```
+
+## Dimensions
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 16:9 | 1280 | 720 |
+| 1:1 | 720 | 720 |
+| 9:16 | 405 | 720 |
+
+## Prompt Tips
+
+### Be Specific
+
+- "Replace the person" → "Replace the person walking on the left side of the frame"
+- "Add the object" → "Add the object to the desk in the foreground"
+
+### Describe Placement
+
+- "on the table"
+- "in the background"
+- "to the left of the frame"
+- "in place of the existing subject"
+
+### Match the Scene
+
+- "same lighting"
+- "matching shadows"
+- "natural integration"
+- "seamless blend"
+
+## Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Object not appearing | Vague placement | Be specific about where |
+| Wrong element replaced | Ambiguous reference | Describe which element specifically |
+| Poor blending | Lighting mismatch | Add "natural lighting" to prompt |
+| Motion issues | Complex edit | Simplify to one major change |
+
+## Tips
+
+1. **One edit at a time** - Complex edits work better as separate jobs
+2. **Clear references** - Use transparent PNGs when possible
+3. **Match lighting** - Reference images should match video lighting
+4. **Test first** - Start with simple edits before complex ones
+5. **Be descriptive** - More detail = better results
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Kling O1 Edit Reference" icon="book" href="/models/kling-o1-edit">
+    Full parameter documentation
+  </Card>
+  <Card title="Motion Control" icon="person-running" href="/guides/motion-control">
+    Transfer characters to motion
+  </Card>
+</CardGroup>

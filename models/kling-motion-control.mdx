@@ -1,0 +1,248 @@
+---
+title: Motion Control
+description: 'Transfer characters onto motion reference videos'
+---
+
+## Overview
+
+Motion Control transfers a character or subject from an image onto a motion reference video. The subject adopts the motion while maintaining its appearance.
+
+**Best for:** Replacing actors in motion footage, creating animated characters, personalized video content.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "motion_control",
+    "params": {
+      "prompt": "walking through a forest",
+      "mode": "std",
+      "width": 720,
+      "height": 1280,
+      "backgroundSource": "input_video",
+      "medias": [
+        {
+          "role": "video",
+          "data": {
+            "id": "motion-video-id",
+            "type": "video_input",
+            "url": "https://your-storage.com/motion.mp4"
+          }
+        },
+        {
+          "role": "image",
+          "data": {
+            "id": "character-image-id",
+            "type": "media_input",
+            "url": "https://your-storage.com/character.png"
+          }
+        }
+      ]
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="prompt" type="string">
+  Scene description. Helps guide the generation style.
+</ParamField>
+
+<ParamField body="mode" type="string" required>
+  Quality mode: `std` (standard) or `pro` (higher quality).
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Output width in pixels.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Output height in pixels.
+</ParamField>
+
+<ParamField body="backgroundSource" type="string">
+  Background source: `input_video` (keep video background) or `input_image` (use character image background).
+</ParamField>
+
+<ParamField body="medias" type="array" required>
+  Array containing exactly two media inputs:
+  - `video` role: The motion reference video
+  - `image` role: The character/subject to transfer
+</ParamField>
+
+<ParamField body="character_orientation" type="string">
+  Character orientation hint: `video` or `image`.
+</ParamField>
+
+<ParamField body="seed" type="number">
+  Random seed for reproducible results.
+</ParamField>
+
+<ParamField body="duration" type="number">
+  Output duration in seconds.
+</ParamField>
+
+## Media Input Format
+
+Each media in the `medias` array follows this structure:
+
+```json
+{
+  "role": "video",  // or "image"
+  "data": {
+    "id": "unique-identifier",
+    "type": "video_input",  // or "media_input" for images
+    "url": "https://your-storage.com/file.mp4"
+  }
+}
+```
+
+## Quality Modes
+
+| Mode | Processing Time | Quality | Use Case |
+|------|-----------------|---------|----------|
+| `std` | Faster | Good | Testing, iteration, social media |
+| `pro` | Slower | Best | Final production, professional use |
+
+## Common Dimensions
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 9:16 (Portrait) | 720 | 1280 |
+| 16:9 (Landscape) | 1280 | 720 |
+| 1:1 (Square) | 720 | 720 |
+
+## Pricing
+
+| Mode | Credits |
+|------|---------|
+| Standard | 10 |
+| Pro | 10 |
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "motion_control",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/output.mp4",
+      "thumbnail_url": "https://cdn.higgsfield.ai/thumb.webp"
+    },
+    "min": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/output_compressed.mp4"
+    }
+  }
+}
+```
+
+## Tips
+
+1. **Use clean character images** - Full-body shots with clear edges work best
+2. **Match aspect ratios** - Your character image should roughly match the motion video aspect ratio
+3. **Consider lighting** - Characters blend better when lighting matches the video
+4. **Keep motion smooth** - Jerky or very fast motions may not transfer well
+5. **Test with std first** - Iterate on std mode before switching to pro
+
+## Examples
+
+### Dancing Character
+
+Transfer a custom character onto a dance video:
+
+```json
+{
+  "type": "motion_control",
+  "params": {
+    "prompt": "energetic dance in a studio",
+    "mode": "pro",
+    "width": 720,
+    "height": 1280,
+    "backgroundSource": "input_image",
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "dance-motion",
+          "type": "video_input",
+          "url": "https://your-storage.com/dance.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "my-character",
+          "type": "media_input",
+          "url": "https://your-storage.com/avatar.png"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Walking Scene
+
+```json
+{
+  "type": "motion_control",
+  "params": {
+    "prompt": "walking through city streets",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "backgroundSource": "input_video",
+    "character_orientation": "video",
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "walk-video",
+          "type": "video_input",
+          "url": "https://your-storage.com/walking.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "person",
+          "type": "media_input",
+          "url": "https://your-storage.com/person.jpg"
+        }
+      }
+    ]
+  }
+}
+```
+
+## Motion Control V2
+
+An extended version with additional parameters is available as `motion_control_v2`:
+
+```json
+{
+  "type": "motion_control_v2",
+  "params": {
+    "prompt": "dancing in studio",
+    "mode": "pro",
+    "width": 720,
+    "height": 1280,
+    "character_orientation": "video",
+    "seed": 12345,
+    "duration": 5,
+    "medias": [...]
+  }
+}
+```
+
+Additional v2 parameters:
+- `character_orientation` - More control over character direction
+- `seed` - Reproducible results
+- `duration` - Explicit duration control

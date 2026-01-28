@@ -1,0 +1,125 @@
+---
+title: Accounts
+description: 'Generation account pooling and management'
+---
+
+## Account Pooling
+
+The Higgsfield API uses a pool of generation accounts to process jobs. This provides:
+
+- **Higher throughput** - Multiple jobs run in parallel
+- **Automatic failover** - If one account fails, jobs route to another
+- **Load balancing** - Work distributes evenly across accounts
+
+## Account States
+
+| State | Description |
+|-------|-------------|
+| `active` | Available for job processing |
+| `disabled` | Temporarily unavailable (manual or automatic) |
+| `busy` | Currently processing maximum jobs |
+
+## Job Limits
+
+Each account has configurable limits:
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxVideoJobs` | 8 | Concurrent video generation jobs |
+| `maxImageJobs` | 8 | Concurrent image generation jobs |
+
+When an account reaches its limit, new jobs queue until slots free up.
+
+## Account Health
+
+Accounts are automatically monitored for:
+
+- **Auth token expiration** - Tokens refreshed before expiry
+- **Rate limiting** - Accounts temporarily disabled if rate limited
+- **Failures** - High failure rates trigger review
+
+## Managing Accounts
+
+### List Accounts
+
+```bash
+curl https://higgsfield.ai/api/accounts \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Add Account
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "account@example.com",
+    "authToken": "jwt_token_here",
+    "maxVideoJobs": 8,
+    "maxImageJobs": 8
+  }'
+```
+
+### Disable Account
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/disable \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "account_id"}'
+```
+
+### Enable Account
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/enable \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "account_id"}'
+```
+
+### Update Auth Token
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/auth \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "account_id",
+    "authToken": "new_jwt_token",
+    "authTokenExpiresAt": 1706123456789
+  }'
+```
+
+## Browser Login
+
+For accounts requiring browser-based authentication:
+
+### Initiate Login
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/login \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "account_id"}'
+```
+
+### Check Login Status
+
+```bash
+curl "https://higgsfield.ai/api/accounts/login-status?id=account_id" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Submit Verification Code
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/verify \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "account_id",
+    "code": "123456"
+  }'
+```

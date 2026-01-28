@@ -1,0 +1,59 @@
+---
+title: 'List Accounts'
+api: 'GET /api/accounts'
+description: 'List all generation accounts'
+---
+
+## Query Parameters
+
+<ParamField query="includeDisabled" type="boolean" default="false">
+  Include disabled accounts in the response
+</ParamField>
+
+## Response
+
+<ResponseField name="accounts" type="array">
+  Array of account objects
+</ResponseField>
+
+## Example
+
+```bash
+curl "https://higgsfield.ai/api/accounts" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Include Disabled
+
+```bash
+curl "https://higgsfield.ai/api/accounts?includeDisabled=true" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Response
+
+```json
+{
+  "accounts": [
+    {
+      "id": "acct_abc123",
+      "email": "account1@example.com",
+      "isDisabled": false,
+      "currentVideoJobs": 2,
+      "currentImageJobs": 5,
+      "maxVideoJobs": 8,
+      "maxImageJobs": 8,
+      "authTokenExpiresAt": 1706200000000
+    },
+    {
+      "id": "acct_def456",
+      "email": "account2@example.com",
+      "isDisabled": false,
+      "currentVideoJobs": 0,
+      "currentImageJobs": 3,
+      "maxVideoJobs": 8,
+      "maxImageJobs": 8
+    }
+  ]
+}
+```

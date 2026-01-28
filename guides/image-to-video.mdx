@@ -1,0 +1,258 @@
+---
+title: Image-to-Video
+description: 'Animate still images into videos using Kling 2.6'
+---
+
+## Overview
+
+Transform still images into animated videos. Kling 2.6 analyzes your image and generates natural motion based on your prompt.
+
+## Prerequisites
+
+- API key
+- A source image (hosted URL)
+- 10 credits per 5s video
+
+## Step 1: Prepare Your Image
+
+Your image needs to be accessible via URL. Common options:
+
+- Upload to your CDN
+- Use cloud storage (S3, GCS, etc.)
+- Use Higgsfield's asset upload API
+
+**Image Requirements:**
+
+- Format: JPEG, PNG, WebP
+- Recommended: High quality, clear subject
+- Aspect ratio: Match your target video ratio
+
+## Step 2: Create the Job
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_26",
+    "params": {
+      "prompt": "Gentle camera push in, leaves rustling in wind, sunlight filtering through",
+      "width": 1080,
+      "height": 1920,
+      "duration": 5,
+      "sound": false,
+      "cfg_scale": 0.5,
+      "input_image": {
+        "id": "my-forest-image",
+        "type": "media_input",
+        "url": "https://your-storage.com/forest.jpg"
+      }
+    }
+  }'
+```
+
+<Note>
+When using `input_image`, omit `aspect_ratio` or set it to `null`. The aspect ratio is determined by the input image.
+</Note>
+
+## Step 3: Poll and Download
+
+Same as text-to-video:
+
+```bash
+curl "https://higgsfield.ai/api/jobs?id=JOB_ID" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+## Input Image Object
+
+```json
+{
+  "id": "unique-identifier",
+  "type": "media_input",
+  "url": "https://your-storage.com/image.jpg",
+  "width": 1080,  // optional
+  "height": 1920  // optional
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | Yes | Your identifier for the image |
+| `type` | Yes | Always `media_input` |
+| `url` | Yes | Publicly accessible URL |
+| `width` | No | Image width (helps optimization) |
+| `height` | No | Image height (helps optimization) |
+
+## Prompt Strategies
+
+For image-to-video, your prompt should describe **motion**, not the image content:
+
+### Good Prompts
+
+| Image Content | Prompt |
+|---------------|--------|
+| Portrait | "Subtle head turn, eyes blinking, hair moving gently" |
+| Landscape | "Camera slowly pans right, clouds drifting, birds flying" |
+| Product | "Slow rotation, studio lighting shifting subtly" |
+| Food | "Steam rising, slight camera movement, appetizing" |
+
+### Motion Keywords
+
+- **Camera**: pan, tilt, push, pull, dolly, zoom, orbit
+- **Natural**: flowing, drifting, rustling, swaying, breathing
+- **Subtle**: gentle, slight, soft, slow, gradual
+
+## Examples
+
+### Portrait Animation
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Portrait comes to life, subtle smile forming, eyes engaging camera, natural breathing motion",
+    "width": 1080,
+    "height": 1350,
+    "duration": 5,
+    "sound": false,
+    "input_image": {
+      "id": "portrait-001",
+      "type": "media_input",
+      "url": "https://your-storage.com/portrait.jpg"
+    }
+  }
+}
+```
+
+### Landscape Timelapse Effect
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Time passing, clouds moving quickly across sky, shadows shifting, golden hour progression",
+    "width": 1920,
+    "height": 1080,
+    "duration": 5,
+    "sound": true,
+    "input_image": {
+      "id": "landscape-001",
+      "type": "media_input",
+      "url": "https://your-storage.com/sunset.jpg"
+    }
+  }
+}
+```
+
+### Product Showcase
+
+```json
+{
+  "type": "kling_26",
+  "params": {
+    "prompt": "Slow 360 degree rotation, professional studio lighting, premium quality showcase",
+    "width": 1080,
+    "height": 1080,
+    "duration": 5,
+    "sound": false,
+    "cfg_scale": 0.7,
+    "input_image": {
+      "id": "product-shot",
+      "type": "media_input",
+      "url": "https://your-storage.com/watch.jpg"
+    }
+  }
+}
+```
+
+## Image Quality Impact
+
+| Image Quality | Result Quality |
+|---------------|----------------|
+| High-res, sharp | Best results |
+| Low-res, noisy | May amplify artifacts |
+| Over-compressed | Visible artifacts in motion |
+| AI-generated | Works well, match styles |
+
+## Tips
+
+1. **Match resolution** - Output dimensions should match your image's aspect ratio
+2. **Simple subjects** - Single subjects animate better than complex scenes
+3. **Describe motion** - Prompt should focus on movement, not content
+4. **Use cfg_scale** - Higher values (0.6-0.8) for tighter prompt adherence
+5. **Test first** - Use 5s videos to test before committing to longer durations
+
+## Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Distorted faces | Complex motion | Simpler prompt, lower cfg_scale |
+| No motion | Vague prompt | Be specific about movement |
+| Wrong aspect | Dimension mismatch | Match output to image ratio |
+| Artifacts | Low-quality source | Use higher resolution image |
+
+## Workflow Integration
+
+Image-to-video works great with generated images:
+
+```
+Generate Image (Nano/Soul/Seedream) → Image-to-Video (Kling 2.6)
+```
+
+### Example: Generate + Animate
+
+**Step 1: Generate image**
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "nano_banana_2",
+    "params": {
+      "prompt": "Serene forest clearing, sunbeams, fantasy atmosphere",
+      "width": 768,
+      "height": 1344,
+      "batch_size": 1,
+      "aspect_ratio": "9:16",
+      "resolution": "2k"
+    }
+  }'
+```
+
+**Step 2: Wait for image, get URL**
+
+**Step 3: Animate the image**
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "kling_26",
+    "params": {
+      "prompt": "Magical atmosphere, particles floating, light rays moving, forest coming alive",
+      "width": 768,
+      "height": 1344,
+      "duration": 5,
+      "sound": true,
+      "input_image": {
+        "id": "generated-forest",
+        "type": "media_input",
+        "url": "URL_FROM_STEP_2"
+      }
+    }
+  }'
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Motion Control" icon="person-running" href="/guides/motion-control">
+    Transfer characters to motion videos
+  </Card>
+  <Card title="Text-to-Video" icon="video" href="/guides/text-to-video">
+    Generate videos from prompts
+  </Card>
+</CardGroup>

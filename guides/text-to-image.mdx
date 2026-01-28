@@ -1,0 +1,267 @@
+---
+title: Text-to-Image
+description: 'Generate images from text prompts'
+---
+
+## Overview
+
+Generate images from text descriptions using Nano Banana 2, Soul, or Seedream. Each model has different strengths.
+
+## Quick Comparison
+
+| Model | Speed | Best For | Credits |
+|-------|-------|----------|---------|
+| Nano Banana 2 | Fastest | Iteration, testing | 3 |
+| Soul | Medium | Style consistency | 2 |
+| Seedream | Slower | High resolution (4K) | 2-4 |
+
+## Nano Banana 2
+
+Fast, general-purpose generation.
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "nano_banana_2",
+    "params": {
+      "prompt": "Professional headshot of a business executive, studio lighting, neutral background",
+      "width": 864,
+      "height": 1184,
+      "batch_size": 4,
+      "aspect_ratio": "3:4",
+      "resolution": "2k"
+    }
+  }'
+```
+
+### When to Use
+
+- Rapid iteration on prompts
+- Testing composition ideas
+- General purpose images
+- Multiple variations (`batch_size` up to 4)
+
+## Soul
+
+Style-controlled generation with presets.
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "text2image_soul",
+    "params": {
+      "prompt": "Fashion model in urban setting, confident pose",
+      "quality": "1080p",
+      "aspect_ratio": "3:4",
+      "style_id": "your-style-uuid",
+      "style_strength": 0.75,
+      "enhance_prompt": true,
+      "seed": 42,
+      "batch_size": 2
+    }
+  }'
+```
+
+### When to Use
+
+- Brand consistency
+- Consistent character design
+- Artistic styles
+- Series of related images
+
+## Seedream
+
+High-resolution output up to 4K.
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "seedream",
+    "params": {
+      "model": "seedream_v4_5",
+      "prompt": "Stunning landscape, dramatic clouds, professional photography",
+      "width": 2560,
+      "height": 1440,
+      "quality": "high",
+      "aspect_ratio": "16:9",
+      "batch_size": 1,
+      "seed": 12345
+    }
+  }'
+```
+
+### When to Use
+
+- Print materials
+- Large displays
+- High-resolution marketing
+- Final production assets
+
+## Aspect Ratios
+
+All models support these ratios:
+
+| Ratio | Use Case |
+|-------|----------|
+| `1:1` | Social media, avatars |
+| `16:9` | YouTube, presentations |
+| `9:16` | TikTok, Stories |
+| `4:3` | Standard landscape |
+| `3:4` | Standard portrait |
+| `4:5` | Instagram portrait |
+| `3:2` | Photography standard |
+| `21:9` | Ultra-wide |
+
+## Prompt Engineering
+
+### Structure
+
+```
+[Subject], [Details], [Style], [Technical]
+```
+
+### Example
+
+```
+Professional headshot of a CEO, confident expression,
+modern office background, shallow depth of field,
+studio lighting, 4K, photorealistic
+```
+
+### Good Practices
+
+| Do | Don't |
+|----|-------|
+| Be specific about subject | "Something cool" |
+| Include lighting details | Assume default lighting |
+| Mention style or quality | Generic descriptions |
+| Describe composition | Leave composition to chance |
+
+### Useful Modifiers
+
+**Quality:**
+- "4K", "ultra HD", "high resolution"
+- "photorealistic", "hyperrealistic"
+- "professional", "studio quality"
+
+**Lighting:**
+- "golden hour", "blue hour"
+- "studio lighting", "natural light"
+- "dramatic shadows", "soft diffused"
+
+**Composition:**
+- "close-up", "wide shot", "aerial view"
+- "centered", "rule of thirds"
+- "shallow depth of field", "bokeh"
+
+## Batch Generation
+
+Generate multiple variations:
+
+```json
+{
+  "type": "nano_banana_2",
+  "params": {
+    "prompt": "Product shot of sneakers on white background",
+    "width": 1024,
+    "height": 1024,
+    "batch_size": 4,
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  }
+}
+```
+
+All variations are returned in the results.
+
+## Using Seeds
+
+For reproducible results:
+
+```json
+{
+  "type": "text2image_soul",
+  "params": {
+    "prompt": "Portrait in vintage style",
+    "seed": 42,
+    ...
+  }
+}
+```
+
+Same seed + same prompt = same output.
+
+**Tip:** Keep the seed constant while adjusting other parameters to iterate on a specific result.
+
+## Poll for Results
+
+```bash
+curl "https://higgsfield.ai/api/jobs?id=JOB_ID" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+Response:
+
+```json
+{
+  "id": "JOB_ID",
+  "type": "nano_banana_2",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/image.png"
+    }
+  }
+}
+```
+
+## Post-Processing
+
+Chain with enhancement models:
+
+```
+Generate → Skin Enhancer (portraits) → Topaz Upscale (higher res)
+```
+
+### Example Pipeline
+
+1. Generate with Nano Banana 2 (3 credits)
+2. Enhance skin if portrait (1 credit)
+3. Upscale 2x with Topaz (1 credit)
+
+Total: 5 credits for enhanced, upscaled image.
+
+## Tips
+
+1. **Iterate fast with Nano** - Test prompts with Nano Banana before using slower models
+2. **Use Soul for consistency** - When making related images, Soul keeps style constant
+3. **Seedream for final** - Use high-quality Seedream for production assets
+4. **Batch for options** - Generate 4 variations, pick the best
+5. **Seeds for control** - Lock in a good result with a seed, then refine prompt
+
+## Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Wrong composition | Be explicit about framing |
+| Missing subject | Describe subject first in prompt |
+| Wrong style | Add style modifiers or use Soul |
+| Low quality | Use "high quality", "4K", "detailed" |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Image Enhancement" icon="sparkles" href="/guides/image-enhancement">
+    Enhance and upscale images
+  </Card>
+  <Card title="Image-to-Video" icon="video" href="/guides/image-to-video">
+    Animate your generated images
+  </Card>
+</CardGroup>

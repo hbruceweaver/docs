@@ -1,0 +1,122 @@
+---
+title: 'Get Job'
+api: 'GET /api/jobs'
+description: 'Retrieve a job by ID or external ID'
+---
+
+## Query Parameters
+
+<ParamField query="id" type="string">
+  The job ID (returned from create)
+</ParamField>
+
+<ParamField query="externalId" type="string">
+  Your custom external ID (if you provided one when creating)
+</ParamField>
+
+<Note>
+Provide either `id` or `externalId`, not both.
+</Note>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Job ID
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Job type
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current status: `queued`, `in_progress`, `completed`, or `failed`
+</ResponseField>
+
+<ResponseField name="params" type="object">
+  Job parameters
+</ResponseField>
+
+<ResponseField name="results" type="object">
+  Output URLs (only present when `status` is `completed`)
+</ResponseField>
+
+<ResponseField name="failReason" type="string">
+  Failure reason (only present when `status` is `failed`)
+</ResponseField>
+
+<ResponseField name="createdAt" type="number">
+  Creation timestamp (ms since epoch)
+</ResponseField>
+
+<ResponseField name="externalId" type="string">
+  Your custom identifier (if provided)
+</ResponseField>
+
+## Examples
+
+### By Job ID
+
+```bash
+curl "https://higgsfield.ai/api/jobs?id=j57abc123def456" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### By External ID
+
+```bash
+curl "https://higgsfield.ai/api/jobs?externalId=my-order-123" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+### Response (Queued)
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "nano_banana_2",
+  "status": "queued",
+  "params": {
+    "prompt": "a stunning landscape",
+    "width": 1024,
+    "height": 1024
+  },
+  "createdAt": 1706123456789,
+  "externalId": "my-order-123"
+}
+```
+
+### Response (Completed)
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "nano_banana_2",
+  "status": "completed",
+  "params": {
+    "prompt": "a stunning landscape",
+    "width": 1024,
+    "height": 1024
+  },
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/output/image.png"
+    }
+  },
+  "createdAt": 1706123456789,
+  "externalId": "my-order-123"
+}
+```
+
+### Response (Failed)
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "motion_control",
+  "status": "failed",
+  "params": {...},
+  "failReason": "image_recognition_failed",
+  "createdAt": 1706123456789
+}
+```

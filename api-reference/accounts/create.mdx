@@ -1,0 +1,56 @@
+---
+title: 'Create Account'
+api: 'POST /api/accounts'
+description: 'Add a new generation account'
+---
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  Account email address
+</ParamField>
+
+<ParamField body="authToken" type="string" required>
+  JWT authentication token
+</ParamField>
+
+<ParamField body="authTokenExpiresAt" type="number">
+  Token expiration timestamp (ms since epoch)
+</ParamField>
+
+<ParamField body="maxVideoJobs" type="number" default="8">
+  Maximum concurrent video jobs
+</ParamField>
+
+<ParamField body="maxImageJobs" type="number" default="8">
+  Maximum concurrent image jobs
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  The created account ID
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "newaccount@example.com",
+    "authToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "authTokenExpiresAt": 1706200000000,
+    "maxVideoJobs": 8,
+    "maxImageJobs": 8
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "acct_ghi789"
+}
+```

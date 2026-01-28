@@ -1,0 +1,142 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Higgsfield API",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#6366F1",
+    "light": "#818CF8",
+    "dark": "#4F46E5",
+    "anchors": {
+      "from": "#6366F1",
+      "to": "#8B5CF6"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Dashboard",
+      "url": "https://higgsfield.dev/dashboard"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get API Key",
+    "url": "https://higgsfield.dev/dashboard/api-keys"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/higgsfield-ai"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/higgsfield"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart", "authentication"]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/text-to-video",
+        "guides/image-to-video",
+        "guides/motion-control",
+        "guides/video-editing",
+        "guides/text-to-image",
+        "guides/image-enhancement",
+        "guides/webhooks"
+      ]
+    },
+    {
+      "group": "Models",
+      "pages": [
+        "models/overview",
+        "models/kling-26",
+        "models/kling-motion-control",
+        "models/kling-o1-edit",
+        "models/nano-banana-2",
+        "models/soul",
+        "models/seedream",
+        "models/skin-enhancer",
+        "models/topaz-upscale"
+      ]
+    },
+    {
+      "group": "Concepts",
+      "pages": [
+        "concepts/jobs",
+        "concepts/accounts",
+        "concepts/webhooks",
+        "concepts/credits",
+        "concepts/rate-limits"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": ["api-reference/introduction", "api-reference/errors"]
+    },
+    {
+      "group": "Jobs API",
+      "pages": [
+        "api-reference/jobs/create",
+        "api-reference/jobs/get",
+        "api-reference/jobs/list",
+        "api-reference/jobs/cancel",
+        "api-reference/jobs/retry"
+      ]
+    },
+    {
+      "group": "Accounts API",
+      "pages": [
+        "api-reference/accounts/list",
+        "api-reference/accounts/create",
+        "api-reference/accounts/disable",
+        "api-reference/accounts/enable",
+        "api-reference/accounts/update-auth"
+      ]
+    },
+    {
+      "group": "Stats API",
+      "pages": ["api-reference/stats/overview"]
+    },
+    {
+      "group": "Pricing API",
+      "pages": [
+        "api-reference/pricing/models",
+        "api-reference/pricing/calculate"
+      ]
+    },
+    {
+      "group": "SDKs",
+      "pages": ["sdks/overview", "sdks/typescript"]
+    },
+    {
+      "group": "Resources",
+      "pages": ["changelog"]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/higgsfield_ai",
+    "github": "https://github.com/higgsfield-ai",
+    "discord": "https://discord.gg/higgsfield"
+  },
+  "api": {
+    "baseUrl": "https://higgsfield.ai",
+    "auth": {
+      "method": "bearer"
+    }
+  }
+}

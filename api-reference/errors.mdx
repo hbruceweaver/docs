@@ -1,0 +1,291 @@
+---
+title: Error Codes
+description: 'Error responses and how to handle them'
+---
+
+## HTTP Status Codes
+
+| Code | Meaning | Action |
+|------|---------|--------|
+| 200 | Success | Process response |
+| 201 | Created | Resource created |
+| 400 | Bad Request | Fix request parameters |
+| 401 | Unauthorized | Check API key |
+| 404 | Not Found | Verify resource ID |
+| 429 | Rate Limited | Wait and retry |
+| 500 | Internal Error | Retry with backoff |
+
+## Error Response Format
+
+```json
+{
+  "error": "Error message describing the issue"
+}
+```
+
+## Authentication Errors
+
+### Missing Authentication
+
+```json
+{
+  "error": "Authentication required. Provide API key via Authorization: Bearer hf_..."
+}
+```
+
+**Solution:** Add the Authorization header to your request.
+
+### Invalid Format
+
+```json
+{
+  "error": "Invalid Authorization header format. Use: Bearer hf_..."
+}
+```
+
+**Solution:** Use the format `Authorization: Bearer hf_your_key`.
+
+### Invalid Key
+
+```json
+{
+  "error": "Invalid or revoked API key"
+}
+```
+
+**Solution:** Check your API key in the dashboard. Generate a new one if needed.
+
+## Job Errors
+
+### Missing Required Fields
+
+```json
+{
+  "error": "Missing required field: type"
+}
+```
+
+**Solution:** Include all required fields. Check the model reference for requirements.
+
+### Invalid Job Type
+
+```json
+{
+  "error": "Invalid job type: invalid_type"
+}
+```
+
+**Solution:** Use a valid job type. Options:
+- `kling_26`
+- `motion_control`
+- `motion_control_v2`
+- `kling_o1_edit`
+- `nano_banana_2`
+- `text2image_soul`
+- `seedream`
+- `skin_enhancer`
+- `topaz_image`
+
+### Invalid Parameters
+
+```json
+{
+  "error": "Invalid params: width must be a positive number"
+}
+```
+
+**Solution:** Check parameter types and values against the model reference.
+
+### Job Not Found
+
+```json
+{
+  "error": "Job not found"
+}
+```
+
+**Solution:** Verify the job ID. Jobs may be deleted after a retention period.
+
+## Job Failure Reasons
+
+When a job fails, the `failReason` field explains why:
+
+| Reason | Description | Action |
+|--------|-------------|--------|
+| `image_recognition_failed` | Could not process input image | Use clearer image |
+| `timeout` | Generation took too long | Retry, simplify prompt |
+| `invalid_input` | Input media corrupted | Check file format |
+| `content_policy` | Content policy violation | Modify prompt |
+| `account_error` | Generation account issue | Automatic retry |
+| `insufficient_credits` | Not enough credits | Add credits |
+| `rate_limited` | Too many requests | Wait and retry |
+
+### Example Failed Job
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "kling_26",
+  "status": "failed",
+  "failReason": "image_recognition_failed",
+  "error": "Could not process the input image. Please use a clearer image."
+}
+```
+
+## Rate Limit Errors
+
+### Too Many Requests
+
+```json
+{
+  "error": "Rate limit exceeded. Try again in 30 seconds."
+}
+```
+
+**Response:** `429 Too Many Requests`
+
+**Headers:**
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1705312800
+```
+
+**Solution:** Implement exponential backoff:
+
+```javascript
+async function requestWithBackoff(fn, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error.status === 429 && i < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+```
+
+## Account Errors
+
+### No Available Accounts
+
+```json
+{
+  "error": "No available accounts for job type: kling_26"
+}
+```
+
+**Solution:** Wait for accounts to become available, or contact support.
+
+### Account Disabled
+
+```json
+{
+  "error": "Account is disabled"
+}
+```
+
+**Solution:** Check account status in dashboard. Re-enable or use another account.
+
+## Validation Errors
+
+### Invalid Dimensions
+
+```json
+{
+  "error": "Invalid dimensions: width must be between 256 and 4096"
+}
+```
+
+### Invalid Duration
+
+```json
+{
+  "error": "Invalid duration: must be 5 or 10 for kling_26"
+}
+```
+
+### Invalid Aspect Ratio
+
+```json
+{
+  "error": "Invalid aspect_ratio: must be one of 1:1, 16:9, 9:16"
+}
+```
+
+## Handling Errors
+
+### JavaScript
+
+```javascript
+async function createJob(params) {
+  const response = await fetch('https://higgsfield.ai/api/jobs', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(params)
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+
+    switch (response.status) {
+      case 401:
+        throw new Error('Invalid API key');
+      case 429:
+        throw new Error('Rate limited');
+      case 400:
+        throw new Error(`Bad request: ${error.error}`);
+      default:
+        throw new Error(error.error || 'Unknown error');
+    }
+  }
+
+  return response.json();
+}
+```
+
+### Python
+
+```python
+import requests
+
+def create_job(params):
+    response = requests.post(
+        "https://higgsfield.ai/api/jobs",
+        headers={
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json=params
+    )
+
+    if response.status_code == 401:
+        raise Exception("Invalid API key")
+    elif response.status_code == 429:
+        raise Exception("Rate limited")
+    elif response.status_code == 400:
+        raise Exception(f"Bad request: {response.json().get('error')}")
+    elif not response.ok:
+        raise Exception(response.json().get("error", "Unknown error"))
+
+    return response.json()
+```
+
+## Getting Help
+
+If you encounter persistent errors:
+
+1. Check the [status page](https://status.higgsfield.dev)
+2. Review the [API reference](/api-reference/introduction)
+3. Contact support with:
+   - Job ID (if applicable)
+   - Request body
+   - Error response
+   - Timestamp

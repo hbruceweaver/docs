@@ -1,0 +1,34 @@
+---
+title: 'Enable Account'
+api: 'POST /api/accounts/enable'
+description: 'Re-enable a disabled account'
+---
+
+## Request Body
+
+<ParamField body="id" type="string" required>
+  The account ID to enable
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the operation was successful
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://higgsfield.ai/api/accounts/enable \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "acct_abc123"}'
+```
+
+### Response
+
+```json
+{
+  "success": true
+}
+```

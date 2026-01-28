@@ -1,0 +1,315 @@
+---
+title: Motion Control
+description: 'Transfer a character onto motion reference videos'
+---
+
+## Overview
+
+Motion Control transfers a character or subject from an image onto a motion reference video. The character inherits the motion while maintaining their appearance.
+
+## Prerequisites
+
+- API key
+- A motion reference video (hosted URL)
+- A character/subject image (hosted URL)
+- 10 credits per generation
+
+## How It Works
+
+```
+Motion Video + Character Image = Character performing the motion
+```
+
+The model:
+1. Analyzes the motion from your reference video
+2. Extracts your character from the image
+3. Synthesizes the character performing that motion
+
+## Step 1: Prepare Your Assets
+
+### Motion Reference Video
+
+- Format: MP4 (H.264 recommended)
+- Duration: 2-10 seconds
+- Content: Clear motion you want to transfer
+
+**Good motion videos:**
+- Dancing sequences
+- Walking/running
+- Hand gestures
+- Any clear body movement
+
+### Character Image
+
+- Format: JPEG, PNG (PNG with transparency works best)
+- Content: Full body shot with clear edges
+- Background: Simple or transparent preferred
+
+## Step 2: Create the Job
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "motion_control",
+    "params": {
+      "prompt": "walking through a forest, natural movement",
+      "mode": "std",
+      "width": 720,
+      "height": 1280,
+      "backgroundSource": "input_video",
+      "medias": [
+        {
+          "role": "video",
+          "data": {
+            "id": "dance-motion",
+            "type": "video_input",
+            "url": "https://your-storage.com/dance.mp4"
+          }
+        },
+        {
+          "role": "image",
+          "data": {
+            "id": "my-character",
+            "type": "media_input",
+            "url": "https://your-storage.com/character.png"
+          }
+        }
+      ]
+    }
+  }'
+```
+
+## Step 3: Poll and Download
+
+```bash
+curl "https://higgsfield.ai/api/jobs?id=JOB_ID" \
+  -H "Authorization: Bearer hf_your_api_key"
+```
+
+Response when completed:
+
+```json
+{
+  "id": "JOB_ID",
+  "type": "motion_control",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "video",
+      "url": "https://cdn.higgsfield.ai/output.mp4",
+      "thumbnail_url": "https://cdn.higgsfield.ai/thumb.webp"
+    }
+  }
+}
+```
+
+## Media Array Structure
+
+The `medias` array must contain exactly two items:
+
+```json
+{
+  "medias": [
+    {
+      "role": "video",
+      "data": {
+        "id": "unique-video-id",
+        "type": "video_input",
+        "url": "https://..."
+      }
+    },
+    {
+      "role": "image",
+      "data": {
+        "id": "unique-image-id",
+        "type": "media_input",
+        "url": "https://..."
+      }
+    }
+  ]
+}
+```
+
+| Role | Type | Purpose |
+|------|------|---------|
+| `video` | `video_input` | Motion reference |
+| `image` | `media_input` | Character to transfer |
+
+## Background Options
+
+The `backgroundSource` parameter controls what appears behind your character:
+
+| Value | Effect |
+|-------|--------|
+| `input_video` | Keep the video's background |
+| `input_image` | Use the character image's background |
+
+## Quality Modes
+
+| Mode | Speed | Quality | Use Case |
+|------|-------|---------|----------|
+| `std` | Faster | Good | Testing, iteration |
+| `pro` | Slower | Best | Final production |
+
+## Examples
+
+### Dance Video
+
+Transfer a character onto a dance video:
+
+```json
+{
+  "type": "motion_control",
+  "params": {
+    "prompt": "energetic dance performance, vibrant movement",
+    "mode": "pro",
+    "width": 720,
+    "height": 1280,
+    "backgroundSource": "input_video",
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "viral-dance",
+          "type": "video_input",
+          "url": "https://your-storage.com/dance.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "custom-avatar",
+          "type": "media_input",
+          "url": "https://your-storage.com/avatar.png"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Walking Scene with Custom Background
+
+Use the character's original background:
+
+```json
+{
+  "type": "motion_control",
+  "params": {
+    "prompt": "walking confidently, professional setting",
+    "mode": "std",
+    "width": 1280,
+    "height": 720,
+    "backgroundSource": "input_image",
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "walk-motion",
+          "type": "video_input",
+          "url": "https://your-storage.com/walking.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "business-person",
+          "type": "media_input",
+          "url": "https://your-storage.com/person-in-office.jpg"
+        }
+      }
+    ]
+  }
+}
+```
+
+### V2 with Additional Control
+
+Use `motion_control_v2` for more parameters:
+
+```json
+{
+  "type": "motion_control_v2",
+  "params": {
+    "prompt": "smooth dance moves, studio lighting",
+    "mode": "pro",
+    "width": 720,
+    "height": 1280,
+    "character_orientation": "video",
+    "seed": 12345,
+    "duration": 5,
+    "medias": [
+      {
+        "role": "video",
+        "data": {
+          "id": "choreography",
+          "type": "video_input",
+          "url": "https://your-storage.com/choreo.mp4"
+        }
+      },
+      {
+        "role": "image",
+        "data": {
+          "id": "dancer",
+          "type": "media_input",
+          "url": "https://your-storage.com/dancer.png"
+        }
+      }
+    ]
+  }
+}
+```
+
+## Tips for Best Results
+
+### Motion Video
+
+- **Clear motion** - Avoid fast cuts or shaky footage
+- **Single subject** - One person performing the motion works best
+- **Good lighting** - Evenly lit footage produces better results
+- **Simple background** - Less background complexity = better focus on motion
+
+### Character Image
+
+- **Full body visible** - Ideally head to toe
+- **Clear edges** - Well-defined silhouette
+- **Matching pose** - Starting pose similar to video's starting pose
+- **Neutral background** - Solid or transparent backgrounds work best
+
+### General
+
+- **Match aspect ratios** - Character image and motion video should be similar
+- **Consider lighting** - Matching lighting between inputs helps blending
+- **Start with std** - Test with standard mode before using pro
+
+## Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Character distorted | Complex pose mismatch | Simplify motion or match poses |
+| Edges visible | Poor character extraction | Use transparent PNG, cleaner edges |
+| Wrong proportions | Aspect ratio mismatch | Match input aspect ratios |
+| Motion not matched | Motion too complex | Use simpler, clearer motion reference |
+
+## Use Cases
+
+| Use Case | Notes |
+|----------|-------|
+| Content creation | Put yourself into viral dances |
+| Virtual influencers | Animate custom characters |
+| Product demos | Show products in motion |
+| Marketing | Custom branded avatars |
+| Education | Animated instructors |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Video Editing" icon="scissors" href="/guides/video-editing">
+    Edit videos with image references
+  </Card>
+  <Card title="Motion Control Reference" icon="book" href="/models/kling-motion-control">
+    Full parameter documentation
+  </Card>
+</CardGroup>

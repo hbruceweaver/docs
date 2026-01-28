@@ -1,0 +1,72 @@
+---
+title: SDK Overview
+description: 'Official client libraries for the Higgsfield API'
+---
+
+## Available SDKs
+
+| Language | Status | Installation |
+|----------|--------|--------------|
+| [TypeScript/Node.js](/sdks/typescript) | Available | `npm install @higgsfield/sdk` |
+| Python | Coming Soon | - |
+| Go | Planned | - |
+
+## Why Use an SDK?
+
+- **Type safety** - Full TypeScript definitions
+- **Convenience** - Helper methods for common operations
+- **Polling** - Built-in job completion waiting
+- **Error handling** - Typed errors with context
+- **Best practices** - Automatic retries, backoff
+
+## Quick Start
+
+### TypeScript
+
+```typescript
+import { Higgsfield } from '@higgsfield/sdk';
+
+const client = new Higgsfield({ apiKey: 'hf_...' });
+
+// Generate an image
+const job = await client.jobs.create({
+  type: 'nano_banana_2',
+  params: {
+    prompt: 'A serene mountain landscape',
+    width: 1024,
+    height: 1024,
+    batch_size: 1,
+    aspect_ratio: '1:1',
+    resolution: '2k'
+  }
+});
+
+// Wait for completion
+const result = await client.jobs.wait(job.id);
+console.log(result.raw.url);
+```
+
+## REST API
+
+All SDKs wrap the REST API. You can also use the API directly:
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "nano_banana_2",
+    "params": {
+      "prompt": "A serene mountain landscape",
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1,
+      "aspect_ratio": "1:1",
+      "resolution": "2k"
+    }
+  }'
+```
+
+## Request a Language
+
+Need an SDK in another language? [Open an issue](https://github.com/higgsfield-ai/sdk/issues) or contribute one.

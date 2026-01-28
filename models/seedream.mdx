@@ -1,0 +1,207 @@
+---
+title: Seedream
+description: 'High-resolution text-to-image generation (2K-4K)'
+---
+
+## Overview
+
+Seedream v4.5 generates high-resolution images up to 4K. Optimized for crisp, detailed output.
+
+**Best for:** Print materials, large displays, high-resolution marketing assets.
+
+## Quick Start
+
+```bash
+curl -X POST https://higgsfield.ai/api/jobs \
+  -H "Authorization: Bearer hf_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "seedream",
+    "params": {
+      "model": "seedream_v4_5",
+      "prompt": "Stunning landscape photograph, dramatic clouds, professional quality",
+      "width": 2048,
+      "height": 2048,
+      "quality": "basic",
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "seed": 42
+    }
+  }'
+```
+
+## Parameters
+
+<ParamField body="model" type="string" required>
+  Model identifier: `seedream_v4_5`
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Text description of the image to generate.
+</ParamField>
+
+<ParamField body="width" type="number" required>
+  Output width in pixels. See dimensions table.
+</ParamField>
+
+<ParamField body="height" type="number" required>
+  Output height in pixels. See dimensions table.
+</ParamField>
+
+<ParamField body="quality" type="string" required>
+  Output quality: `basic` (2K) or `high` (4K).
+</ParamField>
+
+<ParamField body="aspect_ratio" type="string" required>
+  Image aspect ratio. See supported ratios.
+</ParamField>
+
+<ParamField body="batch_size" type="number" default="1">
+  Number of images to generate (1-4).
+</ParamField>
+
+<ParamField body="seed" type="number" required>
+  Random seed for reproducible results.
+</ParamField>
+
+<ParamField body="input_images" type="array">
+  Optional reference images.
+</ParamField>
+
+## Dimensions
+
+Seedream uses larger base dimensions than other models:
+
+| Aspect Ratio | Width | Height |
+|--------------|-------|--------|
+| 1:1 | 2048 | 2048 |
+| 16:9 | 2560 | 1440 |
+| 9:16 | 1440 | 2560 |
+| 21:9 | 3024 | 1296 |
+| 4:3 | 2304 | 1728 |
+| 3:4 | 1728 | 2304 |
+| 3:2 | 2496 | 1664 |
+| 2:3 | 1664 | 2496 |
+
+## Quality Modes
+
+| Quality | Resolution | Use Case | Credits |
+|---------|------------|----------|---------|
+| `basic` | 2K | Web, digital displays | 2 |
+| `high` | 4K | Print, large format | 4 |
+
+## Pricing
+
+| Quality | Credits |
+|---------|---------|
+| basic | 2 |
+| high | 4 |
+
+## Response
+
+```json
+{
+  "id": "j57abc123def456",
+  "type": "seedream",
+  "status": "completed",
+  "results": {
+    "raw": {
+      "type": "image",
+      "url": "https://cdn.higgsfield.ai/image.png"
+    }
+  }
+}
+```
+
+## Tips
+
+1. **Use for final output** - Seedream is best for production, not iteration
+2. **Match quality to use** - 2K for web, 4K for print
+3. **Detailed prompts** - High resolution reveals fine details; be specific
+4. **Consider file size** - 4K images are large; plan for storage/bandwidth
+5. **Pair with upscaling** - For extreme resolution, generate at 2K then use Topaz
+
+## Examples
+
+### Print-Ready Landscape
+
+```json
+{
+  "type": "seedream",
+  "params": {
+    "model": "seedream_v4_5",
+    "prompt": "Dramatic mountain range at sunset, vibrant orange and purple sky, crystal clear lake reflection, professional landscape photography, ultra detailed",
+    "width": 2560,
+    "height": 1440,
+    "quality": "high",
+    "aspect_ratio": "16:9",
+    "batch_size": 1,
+    "seed": 98765
+  }
+}
+```
+
+### Marketing Asset
+
+```json
+{
+  "type": "seedream",
+  "params": {
+    "model": "seedream_v4_5",
+    "prompt": "Premium skincare product on marble surface, soft studio lighting, elegant composition, luxury brand aesthetic",
+    "width": 2048,
+    "height": 2048,
+    "quality": "high",
+    "aspect_ratio": "1:1",
+    "batch_size": 2,
+    "seed": 54321
+  }
+}
+```
+
+### Portrait for Print
+
+```json
+{
+  "type": "seedream",
+  "params": {
+    "model": "seedream_v4_5",
+    "prompt": "Professional headshot, natural lighting, shallow depth of field, executive portrait, magazine quality",
+    "width": 1728,
+    "height": 2304,
+    "quality": "high",
+    "aspect_ratio": "3:4",
+    "batch_size": 1,
+    "seed": 11111
+  }
+}
+```
+
+### Ultra-Wide Banner
+
+```json
+{
+  "type": "seedream",
+  "params": {
+    "model": "seedream_v4_5",
+    "prompt": "Abstract technology visualization, flowing data streams, blue and purple gradient, futuristic aesthetic",
+    "width": 3024,
+    "height": 1296,
+    "quality": "basic",
+    "aspect_ratio": "21:9",
+    "batch_size": 1,
+    "seed": 77777
+  }
+}
+```
+
+## When to Use Seedream
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Website hero images | Seedream (basic) |
+| Social media posts | Nano Banana 2 (faster) |
+| Print materials | Seedream (high) |
+| Rapid prototyping | Nano Banana 2 |
+| Large format displays | Seedream (high) + Topaz |
+| Brand consistency | Soul with styles |
